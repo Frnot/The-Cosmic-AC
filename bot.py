@@ -1,4 +1,11 @@
 import discord
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BOT_TOKEN = os.getenv("TOKEN")
+
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -8,4 +15,4 @@ class MyClient(discord.Client):
         print('Message from {0.author}: {0.content}'.format(message))
 
 client = MyClient()
-client.run('my token goes here')
+client.run(BOT_TOKEN)
