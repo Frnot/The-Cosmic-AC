@@ -1,11 +1,12 @@
 import os
+import logging
 import discord
 from dotenv import load_dotenv
 
 # Modules
 from utils import *
-log = Utils.log
 
+log = logging.getLogger(__name__)
 load_dotenv()
 BOT_TOKEN = os.getenv("TOKEN")
 
