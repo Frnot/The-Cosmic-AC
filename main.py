@@ -1,11 +1,12 @@
 import os
 import logging
 import discord
-from dotenv import load_dotenv
+
 
 # Modules
 from utils import *
 from cmd_main import *
+import bot_main
 
 # Configure root (global) logger
 root_logger = logging.getLogger('')
@@ -24,18 +25,8 @@ log = logging.getLogger(__name__)
 
 
 
-
-load_dotenv()
-BOT_TOKEN = os.getenv("TOKEN")
-
-class MyClient(discord.Client):
-    async def on_ready(self):
-        log.info('Logged on as {0}!'.format(self.user))
-
-    async def on_message(self, message):
-        log.info('Message from {0.author}: {0.content}'.format(message))
-
-#client = MyClient()
-#client.run(BOT_TOKEN)
 log.info("running test now")
 test()
+
+log.info("Starting bot")
+bot_main.run_bot()
