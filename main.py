@@ -8,18 +8,28 @@ from utils import *
 from cmd_main import *
 import bot_main
 
+
+debug = True
+
 # Configure root (global) logger
 root_logger = logging.getLogger('')
 root_logger.setLevel(logging.NOTSET)
-lso = logging.StreamHandler()
-lfo = logging.FileHandler('main.log', mode='w', encoding="UTF-8")
-lso.setLevel(logging.WARNING)
-lfo.setLevel(logging.DEBUG)
-format = logging.Formatter('%(asctime)s:%(name)-12s:%(levelname)-8s - %(message)s')
-lso.setFormatter(format)
-lfo.setFormatter(format)
-root_logger.addHandler(lso)
-root_logger.addHandler(lfo)
+
+std_out = logging.StreamHandler()
+std_out.setLevel(logging.INFO)
+log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
+log_file.setLevel(logging.INFO)
+debug_log = logging.FileHandler('debug.log', mode='w', encoding="UTF-8")
+debug_log.setLevel(logging.DEBUG)
+format = logging.Formatter("%(asctime)s  %(name)-8s  %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
+std_out.setFormatter(format)
+log_file.setFormatter(format)
+debug_log.setFormatter(format)
+
+root_logger.addHandler(std_out)
+root_logger.addHandler(log_file)
+if (debug): root_logger.addHandler(debug_log)
+
 # configure local logger
 log = logging.getLogger(__name__)
 
