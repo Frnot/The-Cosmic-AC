@@ -3,33 +3,29 @@ import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-#debug
-import time
+# Import modules
+import cmd_main
 
 log = logging.getLogger(__name__)
 
 # Enable (all) intents
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix="./", intents=intents)
+bot = commands.Bot(command_prefix="./", intents=intents)
 
 
-@client.event
+@bot.event
 async def on_ready():
-    log.info('Logged on as {0}!'.format(client.user))
-
-
-@client.event
-async def on_message(message):
-    log.info('Message from {0.author}: {0.content}'.format(message))
-
-
-@client.command()
-async def ping(ctx):
-    await ctx.send("pong")
-    log.info("Sent pong")
+    log.info('Logged on as {0}!'.format(bot.user))
 
 
 def run_bot():
+    # Get token from .env file
     load_dotenv()
-    BOT_TOKEN = os.getenv("TOKEN")
-    client.run(BOT_TOKEN)
+    BOT_TOKEN = os.getenv("TOKEN")   
+    
+    # Load modules
+    bot.add_cog(cmd_main.Cog(bot))
+    
+    # Start the bot
+    bot.run(BOT_TOKEN)
+    
