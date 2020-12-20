@@ -12,7 +12,7 @@ import bot_main
 root_logger = logging.getLogger('')
 root_logger.setLevel(logging.NOTSET)
 lso = logging.StreamHandler()
-lfo = logging.FileHandler('main.log', encoding="UTF-8")
+lfo = logging.FileHandler('main.log', mode='a', encoding="UTF-8")
 lso.setLevel(logging.WARNING)
 lfo.setLevel(logging.DEBUG)
 format = logging.Formatter('%(asctime)s:%(name)-12s:%(levelname)-8s - %(message)s')
