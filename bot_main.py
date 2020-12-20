@@ -1,6 +1,7 @@
 import os
 import logging
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 #debug
 import time
@@ -9,7 +10,7 @@ log = logging.getLogger(__name__)
 
 # Enable (all) intents
 intents = discord.Intents.all()
-client = discord.Client(intents=intents)
+client = commands.Bot(command_prefix="./", intents=intents)
 
 
 @client.event
@@ -20,6 +21,12 @@ async def on_ready():
 @client.event
 async def on_message(message):
     log.info('Message from {0.author}: {0.content}'.format(message))
+
+
+@client.command()
+async def ping(ctx):
+    await ctx.send("pong")
+    log.info("Sent pong")
 
 
 def run_bot():
