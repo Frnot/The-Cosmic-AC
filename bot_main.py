@@ -5,6 +5,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 # Import modules
 import cmd_main
+import snitch
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ def run_bot():
     
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))
+    bot.add_cog(snitch.Cog(bot))
     
     # Start the bot
     bot.run(BOT_TOKEN)
-    
