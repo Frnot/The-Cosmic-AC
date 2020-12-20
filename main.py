@@ -1,13 +1,5 @@
-import os
 import logging
-import discord
-
-
-# Modules
-from utils import *
-from cmd_main import *
 import bot_main
-
 
 debug = True
 
@@ -15,6 +7,7 @@ debug = True
 root_logger = logging.getLogger('')
 root_logger.setLevel(logging.NOTSET)
 
+# Configure logging handlers
 std_out = logging.StreamHandler()
 std_out.setLevel(logging.INFO)
 log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
@@ -32,11 +25,6 @@ if (debug): root_logger.addHandler(debug_log)
 
 # configure local logger
 log = logging.getLogger(__name__)
-
-
-
-log.info("running test now")
-test()
 
 log.info("Starting bot")
 bot_main.run_bot()
