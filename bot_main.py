@@ -2,14 +2,14 @@ import os
 import logging
 import discord
 from dotenv import load_dotenv
+#debug
+import time
 
 log = logging.getLogger(__name__)
 
-# Enable intents
-intents = discord.Intents.default()
-intents.members = True
-
-client = discord.Client
+# Enable (all) intents
+intents = discord.Intents.all()
+client = discord.Client(intents=intents)
 
 
 @client.event
@@ -18,7 +18,7 @@ async def on_ready():
 
 
 @client.event
-async def on_message(self, message):
+async def on_message(message):
     log.info('Message from {0.author}: {0.content}'.format(message))
 
 
