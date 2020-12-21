@@ -20,28 +20,28 @@ class Cog(commands.Cog, name='Snitch'):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await self.snitch(f"{member} has joined {member.guild.name}")
+        await self.snitch(f"{member} has joined '{member.guild.name}'")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await self.snitch(f"{member} has left {member.guild.name}")
+        await self.snitch(f"{member} has left '{member.guild.name}'")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        await self.snitch(f"{user} has been banned from {guild}")
+        await self.snitch(f"{user} has been banned from '{guild.name}'")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
-        await self.snitch(f"{user} has been unbanned from {guild}")
+        await self.snitch(f"{user} has been unbanned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite):
-        await self.snitch(f"{invite.inviter} has created an invite for {invite.guild.name}")
+        await self.snitch(f"`{invite.inviter}` has created an invite for `{invite.guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite):
-        await self.snitch(f"an invite for {invite.guild.name} has been deleted")
+        await self.snitch(f"an invite for `{invite.guild.name}`` has been deleted")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        await self.snitch(f"{member}'s voice state has changed in channel {after.channel.name} in guild {after.channel.guild.name}")
+        await self.snitch(f"{member}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
