@@ -1,12 +1,8 @@
 import discord
 from discord.ext import commands
+import utils
 import logging
 log = logging.getLogger(__name__)
-
-# put this in utils?
-priv_user_ids = ["175786263201185792", "483039138178662400"]
-async def is_owner(ctx):
-    return ctx.author.id in priv_user_ids
 
 class Cog(commands.Cog, name='General commands'):
     def __init__(self, bot):
@@ -18,6 +14,8 @@ class Cog(commands.Cog, name='General commands'):
         await ctx.send(".")
 
     @commands.command()
-    @commands.check(is_owner)
-    async def leave(ctx):
-        ctx.guild.leave() # or something like that
+    @commands.check(utils.is_owner)
+    async def leave(self, ctx):
+        log.info("leave command fired")
+        #ctx.guild.leave() # or something like that
+
