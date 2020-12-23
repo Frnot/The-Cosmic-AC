@@ -21,7 +21,7 @@ class Cog(commands.Cog, name='Snitch'):
     @commands.command()
     @commands.check(utils.is_owner)
     async def creep(self, ctx):
-        if(ctx.guild.id not in self.guild_channels):
+        if(ctx.guild.id in self.guild_channels):
             await ctx.send("I'm already snitchin on this server")
         self.guild_channels[ctx.guild.id] = ctx.channel
 
