@@ -24,6 +24,7 @@ class Cog(commands.Cog, name='Snitch'):
         if(ctx.guild.id in self.guild_channels):
             await ctx.send("I'm already snitchin on this server")
         self.guild_channels[ctx.guild.id] = ctx.channel
+        log.info(f"started snitching on {ctx.guild.name}")
 
     @commands.Cog.listener()
     async def on_member_join(self, member):

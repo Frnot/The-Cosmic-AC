@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 # Import modules
+import db
 import cmd_main
 import snitch
 
@@ -30,3 +31,7 @@ def run_bot():
     
     # Start the bot
     bot.run(BOT_TOKEN)
+
+    # after the bot is somehow stopped
+    # run cleanup
+    db.exit()
