@@ -52,6 +52,12 @@ def insert(table, columns, values):
     cursor.execute(sql)
     conn.commit()
 
+def update(table, columns, values):
+    sql = f"UPDATE {table} SET {columns} = {values}"
+    log.debug(f"Sending query: '{sql}' to database")
+    cursor.execute(sql)
+    conn.commit()
+
 
 def exit():
     conn.close()
