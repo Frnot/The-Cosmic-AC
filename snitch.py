@@ -33,31 +33,31 @@ class Cog(commands.Cog, name='Snitch'):
     # Event Listeners
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await self.notify(member.guild, f"{member} has joined '{member.guild.name}'")
+        await self.notify(member.guild, f"{member.display_name} has joined `{member.guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await self.notify(member.guild, f"{member} has left '{member.guild.name}'")
+        await self.notify(member.guild, f"{member.mention} has left `{member.guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        await self.notify(guild, f"{user} has been banned from '{guild.name}'")
+        await self.notify(guild, f"{user.mention} has been banned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
-        await self.notify(guild, f"{user} has been unbanned from `{guild.name}`")
+        await self.notify(guild, f"{user.mention} has been unbanned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite):
-        await self.notify(invite.guild, f"`{invite.inviter}` has created an invite for `{invite.guild.name}`")
+        await self.notify(invite.guild, f"`{invite.inviter.display_name}` has created an invite for `{invite.guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite):
-        await self.notify(invite.guild, f"an invite for `{invite.guild.name}`` has been deleted")
+        await self.notify(invite.guild, f"an invite for `{invite.guild.name}` has been deleted")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        await self.notify(member.guild, f"{member}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
+        await self.notify(member.guild, f"{member.display_name}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
 
 
     # Module Functions
@@ -68,4 +68,4 @@ class Cog(commands.Cog, name='Snitch'):
         if channel_id is not None:
             await guild.get_channel(channel_id).send(message)
         else:
-            log.debug(f"Event fired but guild '{guild}' was not subscribed")
+            log.debug(f"Event fired but guild {guild} was not subscribed")
