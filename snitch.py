@@ -57,7 +57,7 @@ class Cog(commands.Cog, name='Snitch'):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        await self.notify(member.guild, f"{member.display_name}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
+        #await self.notify(member.guild, f"{member.display_name}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
 
 
     # Module Functions
