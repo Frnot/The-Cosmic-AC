@@ -17,5 +17,5 @@ class Cog(commands.Cog, name='General commands'):
     @commands.check(utils.is_owner)
     async def leave(self, ctx):
         log.info("leave command fired")
-        #ctx.guild.leave() # or something like that
+        await ctx.guild.leave() # or something like that
 
