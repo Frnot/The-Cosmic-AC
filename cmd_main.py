@@ -14,6 +14,11 @@ class Cog(commands.Cog, name='General commands'):
         await ctx.send(".")
 
     @commands.command()
+    async def nukechat(self, ctx):
+        log.info(f"nuking channel: {ctx.channel} in guild: {ctx.guild}")
+        await ctx.channel.purge()
+
+    @commands.command()
     @commands.check(utils.is_owner)
     async def leave(self, ctx):
         log.info("leave command fired")

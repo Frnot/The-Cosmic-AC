@@ -37,15 +37,15 @@ class Cog(commands.Cog, name='Snitch'):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await self.notify(member.guild, f"{member.mention} has left `{member.guild.name}`")
+        await self.notify(member.guild, f"{member.mention} (`{member.display_name}`) has left `{member.guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        await self.notify(guild, f"{user.mention} has been banned from `{guild.name}`")
+        await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been banned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
-        await self.notify(guild, f"{user.mention} has been unbanned from `{guild.name}`")
+        await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been unbanned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite):
@@ -55,8 +55,8 @@ class Cog(commands.Cog, name='Snitch'):
     async def on_invite_delete(self, invite):
         await self.notify(invite.guild, f"an invite for `{invite.guild.name}` has been deleted")
 
-    @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    #@commands.Cog.listener()
+    #async def on_voice_state_update(self, member, before, after):
         #await self.notify(member.guild, f"{member.display_name}'s voice state has changed in channel `#{after.channel.name}` in guild `{after.channel.guild.name}`")
 
 
