@@ -4,6 +4,7 @@ import utils
 import logging
 log = logging.getLogger(__name__)
 
+
 class Cog(commands.Cog, name='General commands'):
     def __init__(self, bot):
         self.bot = bot
