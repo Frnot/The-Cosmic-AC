@@ -15,4 +15,4 @@ class Cog(commands.Cog, name='Anti Opp'):
     async def on_message(self, message):
         if message.find("discord.com/invite") != -1:
             await message.delete()
-            log.info(f"{message.author.display_name}'s discord invite link has been deleted.')
+            log.info(f"{message.author.display_name}'s discord invite link has been deleted.")
