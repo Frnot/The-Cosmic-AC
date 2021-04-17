@@ -17,9 +17,9 @@ class Cog(commands.Cog, name='General commands'):
 
     @commands.command()
     async def listroles(celf, ctx):
-        role_list = ctx.guild.roles()
+        role_list = ctx.guild.roles
         for role in role_list:
-            await ctx.send(f"Name: {role.name} - ID: {role.id}")
+            await ctx.send(f"Name: `{role.name}` - ID: `{role.id}`")
 
     # wipe a chat the old fashioned way
     @commands.command()
