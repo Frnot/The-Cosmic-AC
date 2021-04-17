@@ -14,5 +14,6 @@ class Cog(commands.Cog, name='Server Management'):
     # Give every new member a role
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await member.add_roles(member.guild.get_role(833019419805352007))
+        role = member.guild.get_role(833019419805352007)
+        await member.add_roles(role)
         log.info(f"{member.display_name} has been assigned the role `people`.")
