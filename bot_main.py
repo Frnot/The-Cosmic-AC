@@ -28,6 +28,7 @@ def run_bot():
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))
     bot.add_cog(snitch.Cog(bot))
+    bot.add_cog(anti_opp.Cog(bot))
     
     # Start the bot
     bot.run(BOT_TOKEN)
