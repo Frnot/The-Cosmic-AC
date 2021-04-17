@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import db
 import cmd_main
 import snitch
+import anti_opp
 
 log = logging.getLogger(__name__)
 
