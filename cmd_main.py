@@ -16,7 +16,7 @@ class Cog(commands.Cog, name='General commands'):
         await ctx.send(".")
 
     @commands.command()
-    async def listroles(celf, ctx):
+    async def listroles(self, ctx):
         role_list = ctx.guild.roles
         for role in role_list:
             await ctx.send(f"Name: `{role.name}` - ID: `{role.id}`")
