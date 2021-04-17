@@ -13,6 +13,6 @@ class Cog(commands.Cog, name='Anti Opp'):
     # Event Listeners
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.content.find("discord.com/invite") != -1:
+        if message.content.find("discord.com/invite/") != -1 or message.content.find("discord.gg/") != -1:
             await message.delete()
             log.info(f"{message.author.display_name}'s discord invite link has been deleted.")
