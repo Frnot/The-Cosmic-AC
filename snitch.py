@@ -33,11 +33,11 @@ class Cog(commands.Cog, name='Snitch'):
     # Event Listeners
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await self.notify(member.guild, f"📈 {member.mention} (`{member.display_name}`) has joined `{member.guild.name}`")
+        await self.notify(member.guild, f"({member.guild.member_count}) 📈 {member.mention} (`{member.display_name}`) has joined `{member.guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await self.notify(member.guild, f"📉 {member.mention} (`{member.display_name}`) has left `{member.guild.name}`")
+        await self.notify(member.guild, f"({member.guild.member_count}) 📉 {member.mention} (`{member.display_name}`) has left `{member.guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
