@@ -34,3 +34,12 @@ class Cog(commands.Cog, name='General commands'):
         log.info("leave command fired")
         await ctx.guild.leave() # or something like that
 
+    @commands.command()
+    @commands.check(utils.is_owner)
+    async def setstatus(self, ctx, *, status):
+        log.info(f"setting status to `{status}`")
+        game = discord.Game(status)
+        await self.bot.change_presence(activity=game)
+        # Confirm command (and delte it 5 seconds later)
+        message = await ctx.send("Okay")
+        await message.delete(5)
