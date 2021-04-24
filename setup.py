@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
    name='CosmicAC',
-   version='0.3.2',
+   version='0.3.3',
    description='A discord.py discord bot',
    url="https://github.com/Frnot/The-Cosmic-AC",
    install_requires=['discord.py', 'python-dotenv'],
