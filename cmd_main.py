@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
-import utils
+import db
 import logging
+import time
+import utils
 log = logging.getLogger(__name__)
 
 
@@ -36,10 +38,28 @@ class Cog(commands.Cog, name='General commands'):
 
     @commands.command()
     @commands.check(utils.is_owner)
-    async def setstatus(self, ctx, *, status):
-        log.info(f"setting status to `{status}`")
-        game = discord.Game(status)
-        await self.bot.change_presence(activity=game)
-        # Confirm command (and delte it 5 seconds later)
-        message = await ctx.send("Okay")
-        await message.delete(5)
+    async def status(self, ctx, action, status):
+        if action.lower() == "playing":
+            actiontype = discord.ActivityType.playing
+        elif action.lower() == "streaming":
+            actiontype = discord.ActivityType.streaming
+        elif action.lower() == "listening":
+            actiontype = discord.ActivityType.listening
+        elif action.lower() == "watching":
+            actiontype = discord.ActivityType.watching
+        elif action.lower() == "competing":
+            actiontype = discord.ActivityType.competing
+        
+        await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
+
+        log.info(f"setting status to {actiontype.name} `{status}`")
+        await self.send_confirmation(ctx)
+        
+
+
+    # Module Functions
+    async def send_confirmation(self, ctx):
+        # Confirm command (and delete it 5 seconds later)
+        await ctx.message.add_reaction("✅")
+        time.sleep(5)
+        await ctx.message.remove_reaction("✅", self.bot.user)
