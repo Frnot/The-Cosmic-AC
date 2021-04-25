@@ -31,11 +31,8 @@ class Cog(commands.Cog, name='General commands'):
     
     # bulk delete the last few messages
     @commands.command()
-    async def purge(self, ctx, ammount):
-        if ammount is not None:
-            num = int(ammount)
-        else:
-            num = 100
+    async def purge(self, ctx, ammount=100):
+        num = int(ammount)
         log.info(f"deleting {ammount} messages in channel: {ctx.channel} in guild: {ctx.guild}")
         await ctx.channel.purge(limit=num)
 
