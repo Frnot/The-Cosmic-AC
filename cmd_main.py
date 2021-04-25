@@ -28,6 +28,16 @@ class Cog(commands.Cog, name='General commands'):
     async def nukechat(self, ctx):
         log.info(f"nuking channel: {ctx.channel} in guild: {ctx.guild}")
         await ctx.channel.purge()
+    
+    # bulk delete the last few messages
+    @commands.command()
+    async def purge(self, ctx, ammount):
+        if ammount is not None:
+            num = int(ammount)
+        else:
+            num = 100
+        log.info(f"deleting {ammount} messages in channel: {ctx.channel} in guild: {ctx.guild}")
+        await ctx.channel.purge(limit=num)
 
     # leave server
     @commands.command()
@@ -59,7 +69,6 @@ class Cog(commands.Cog, name='General commands'):
 
     # Module Functions
     async def send_confirmation(self, ctx):
-        # Confirm command (and delete it 5 seconds later)
+        # Confirm command (and delete command 30 seconds later)
         await ctx.message.add_reaction("✅")
-        time.sleep(5)
-        await ctx.message.remove_reaction("✅", self.bot.user)
+        await ctx.message.delete(delay=30)
