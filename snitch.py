@@ -18,14 +18,17 @@ class Cog(commands.Cog, name='Snitch'):
     async def snitch(self, ctx):
         channel_id = db.select("hook_channel_id", "snitch", "guild_id", ctx.guild.id)
         log.debug(f"received channel_id: {channel_id} from sql query")
+
+        sql_data = [["guild_id", ctx.guild.id], ["hook_channel_id", ctx.channel.id]]
+        
         if(ctx.channel.id == channel_id):
             await ctx.send("I'm already snitching in this channel")
         elif channel_id is not None:
-            db.update("snitch", "(guild_id, hook_channel_id)", f"({ctx.guild.id}, {ctx.channel.id})")
+            db.update("snitch", sql_data)
             log.info(f"changed snitch hooked channel from {self.bot.get_channel(channel_id)} to {ctx.channel.name}")
             await ctx.send(f"Moved `{ctx.guild.name}` snitch channel to `#{ctx.channel.name}`")
         else:
-            db.insert("snitch", "(guild_id, hook_channel_id)", f"({ctx.guild.id}, {ctx.channel.id})")
+            db.insert("snitch", sql_data)
             log.info(f"started snitching on {ctx.guild.name}")
             await ctx.send(f"Will snitch on `{ctx.guild.name}` in `#{ctx.channel.name}`")
 

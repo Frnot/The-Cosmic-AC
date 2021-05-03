@@ -20,3 +20,12 @@ class Cog(commands.Cog, name='Anti Opp'):
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
         self.on_message(message)
+
+    
+    # Blacklist words
+    #@commands.command()
+    #@commands.check(utils.is_owner)
+    #async def blacklist(self, ctx, action, word):
+    #    num = int(ammount)
+    #    log.info(f"deleting {ammount} messages in channel: {ctx.channel} in guild: {ctx.guild}")
+    #    await ctx.channel.purge(limit=num)

@@ -27,8 +27,5 @@ if (debug): root_logger.addHandler(debug_log)
 # configure local logger
 log = logging.getLogger(__name__)
 
-log.info("Loading database")
-db.load()
-
 log.info("Starting bot")
 bot_main.run_bot()
