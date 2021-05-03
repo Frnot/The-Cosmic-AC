@@ -26,7 +26,11 @@ def run_bot():
     # Get token from .env file
     load_dotenv()
     BOT_TOKEN = os.getenv("TOKEN")   
-    
+
+    # Load Database
+    log.info("Loading database")
+    db.load()
+
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))
     bot.add_cog(snitch.Cog(bot))

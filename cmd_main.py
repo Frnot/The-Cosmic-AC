@@ -43,26 +43,37 @@ class Cog(commands.Cog, name='General commands'):
         log.info("leave command fired")
         await ctx.guild.leave() # or something like that
 
+
+    # set status
     @commands.command()
     @commands.check(utils.is_owner)
-    async def status(self, ctx, action, status):
-        if action.lower() == "playing":
+    async def status(self, ctx, action: utils.to_lower, status):
+        if action == "playing":
             actiontype = discord.ActivityType.playing
-        elif action.lower() == "streaming":
+        elif action == "streaming":
             actiontype = discord.ActivityType.streaming
-        elif action.lower() == "listening":
+        elif action in ("listening", "listening to"):
             actiontype = discord.ActivityType.listening
-        elif action.lower() == "watching":
+        elif action == "watching":
             actiontype = discord.ActivityType.watching
-        elif action.lower() == "competing":
+        elif action in ("competing", "competing in"):
             actiontype = discord.ActivityType.competing
         
         await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
 
         log.info(f"setting status to {actiontype.name} `{status}`")
         await self.send_confirmation(ctx)
+
+    @status.error
+    async def status_error(self, ctx, exception):
+        await ctx.send("test")
+        await ctx.send(f"error: {exception}")
         
 
+    @commands.command()
+    @commands.check(utils.is_owner)
+    async def votekick(self, ctx, *, member: discord.Member):
+        pass
 
     # Module Functions
     async def send_confirmation(self, ctx):
