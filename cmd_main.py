@@ -41,7 +41,7 @@ class Cog(commands.Cog, name='General commands'):
     @commands.check(utils.is_owner)
     async def leave(self, ctx):
         log.info("leave command fired")
-        await ctx.guild.leave() # or something like that
+        await ctx.guild.leave()
 
 
     # set status
@@ -73,7 +73,13 @@ class Cog(commands.Cog, name='General commands'):
     @commands.command()
     @commands.check(utils.is_owner)
     async def votekick(self, ctx, *, member: discord.Member):
-        pass
+        testembed = discord.Embed(
+            title="title",
+            color=discord.Colour(utils.random_color()),
+            url=f"https://frnot.com",
+            description="description",
+        )
+        await ctx.send(embed = testembed)
 
     # Module Functions
     async def send_confirmation(self, ctx):

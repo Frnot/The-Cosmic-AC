@@ -23,7 +23,7 @@ def load():
             sys.exit("database error")
         cursor = conn.cursor()
     else:
-        log.info("creating new database")
+        log.info("Creating new database")
         conn = new_db()
         cursor = conn.cursor()
     log.info("database loaded")
