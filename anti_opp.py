@@ -19,7 +19,7 @@ class Cog(commands.Cog, name='Anti Opp'):
     
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
-        self.on_message(message)
+        await self.on_message(message)
 
     
     # Blacklist words
