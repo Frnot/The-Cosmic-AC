@@ -32,9 +32,9 @@ def HSV_to_RGBInt(H, S, V):
         g = C
         b = 0
     elif (120 <= H and H < 180):
-        r1 = 0
-        g1 = C
-        b1 = X
+        r = 0
+        g = C
+        b = X
     elif (180 <= H and H < 240):
         r = 0
         g = X
