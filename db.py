@@ -73,16 +73,21 @@ def select(row, table, symbol, value):
 
 
 def insert(table, data):
-    #sql = f"INSERT INTO {table} {columns} VALUES {values}"
-    sql = f"INSERT INTO {table} ({', '.join(str(c[0]) for c in data)}) VALUES ({', '.join(str(c[1]) for c in data)})"
+    sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES ({', '.join(str(row[1]) for row in data)})"
     log.debug(f"Sending query: '{sql}' to database")
     cursor.execute(sql)
     conn.commit()
 
 
 def update(table, data):
-    #sql = f"UPDATE {table} SET {columns} = {values}"
-    sql = f"UPDATE {table} SET ({', '.join(str(c[0]) for c in data)}) = ({', '.join(str(c[1]) for c in data)})"
+    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join(str(row[1]) for row in data)})"
+    log.debug(f"Sending query: '{sql}' to database")
+    cursor.execute(sql)
+    conn.commit()
+
+
+def delete(table, data):
+    sql = f"DELETE FROM {table} WHERE {str(data[0])} = {str(data[1])}"
     log.debug(f"Sending query: '{sql}' to database")
     cursor.execute(sql)
     conn.commit()

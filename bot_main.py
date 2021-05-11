@@ -9,6 +9,7 @@ import cmd_main
 import snitch
 import anti_opp
 import server_management
+import voting
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ def run_bot():
     bot.add_cog(snitch.Cog(bot))
     bot.add_cog(anti_opp.Cog(bot))
     bot.add_cog(server_management.Cog(bot))
+    bot.add_cog(voting.Cog(bot))
     
     # Start the bot
     bot.run(BOT_TOKEN)

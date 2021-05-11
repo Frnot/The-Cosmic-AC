@@ -58,3 +58,9 @@ def HSV_to_RGBInt(H, S, V):
     RGBint = red * 65536 + green * 265 + blue
     
     return RGBint
+
+
+async def send_confirmation(ctx):
+    # Confirm command (and delete command 30 seconds later)
+    await ctx.message.add_reaction("✅")
+    await ctx.message.delete(delay=30)
