@@ -17,7 +17,7 @@ class Cog(commands.Cog, name='Snitch'):
     @commands.check(utils.is_owner)
     async def snitch(self, ctx):
         channel_id = db.select("hook_channel_id", "snitch", "guild_id", ctx.guild.id)
-        log.debug(f"received channel_id: {channel_id} from sql query")
+        log.debug(f"received channel_id: {channel_id} from sql query where guild_id = {ctx.guild.id}")
 
         sql_data = [["guild_id", ctx.guild.id], ["hook_channel_id", ctx.channel.id]]
         

@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import db
 import logging
-import time
 import utils
 log = logging.getLogger(__name__)
 
@@ -62,27 +61,8 @@ class Cog(commands.Cog, name='General commands'):
         await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
 
         log.info(f"setting status to {actiontype.name} `{status}`")
-        await self.send_confirmation(ctx)
+        await utils.send_confirmation(ctx)
 
     @status.error
     async def status_error(self, ctx, exception):
-        await ctx.send("test")
         await ctx.send(f"error: {exception}")
-        
-
-    @commands.command()
-    @commands.check(utils.is_owner)
-    async def votekick(self, ctx, *, member: discord.Member):
-        testembed = discord.Embed(
-            title="title",
-            color=discord.Colour(utils.random_color()),
-            url=f"https://frnot.com",
-            description="description",
-        )
-        await ctx.send(embed = testembed)
-
-    # Module Functions
-    async def send_confirmation(self, ctx):
-        # Confirm command (and delete command 30 seconds later)
-        await ctx.message.add_reaction("✅")
-        await ctx.message.delete(delay=30)
