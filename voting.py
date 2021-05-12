@@ -31,12 +31,12 @@ class Cog(commands.Cog, name='Voting'):
             message = await ctx.send(f"`{new_role.name}` is already the voting role in `{ctx.guild.name}`")
         elif old_role is ctx.guild.default_role:
             db.insert("voting", sql_data)
-            msg = f"Added voting role: `{get_voter_role(ctx).name}` in `{ctx.guild.name}`"
+            msg = f"Added voting role: `{get_voter_role(ctx.guild).name}` in `{ctx.guild.name}`"
             log.info(msg)
             message = await ctx.send(msg)
         else:
             db.update("voting", sql_data)
-            msg = f"Changed voting role from `{old_role.name}` to `{get_voter_role(ctx).name}`"
+            msg = f"Changed voting role from `{old_role.name}` to `{get_voter_role(ctx.guild).name}`"
             log.info(msg)
             message = await ctx.send(msg)
         #await utils.send_confirmation(ctx)
@@ -49,7 +49,7 @@ class Cog(commands.Cog, name='Voting'):
         sql_data = ["guild_id", ctx.guild.id]
         db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
-        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{get_voter_role(ctx).name}` can now vote.")
+        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{get_voter_role(ctx.guild).name}` can now vote.")
         #await utils.send_confirmation(ctx)
         #await message.delete(delay=30)
 
@@ -60,31 +60,12 @@ class Cog(commands.Cog, name='Voting'):
     @commands.command()
     @commands.check(utils.is_owner)
     async def votekick(self, ctx, *, member: discord.Member):
-        voter_role = await get_voter_role(ctx.guild)
-        num_votes = math.floor(len([voter for voter in voter_role.members if not voter.bot]) / 2) + 1
-
-        embed = (discord.Embed(
-            color=discord.Colour(utils.random_color()),
-            title=f"Vote Kick:   5 minutes",
-            description=f"""Voting to kick: {member.mention}
-            Votes needed to win: **{num_votes}**
-            {voter_role.mention} can vote"""
-            )
-            .set_thumbnail(url=member.avatar_url)
-            .add_field(name="Yes", value=0)
-            .add_field(name="No", value=0)
-        )
-        message = await ctx.send(embed = embed)
-        await message.add_reaction("✅")
-        await message.add_reaction("❌")
-        
-        await Vote.create(message, embed, num_votes)
-        vote = self.votes_in_progress.get(message)
+        vote = await Vote.create(ctx, member)
 
         # wait some time before ending
-        await asyncio.sleep(100)
+        await asyncio.sleep(300)
         if not vote.completed:
-            vote.votefail
+            await vote.votefail()
 
     @votekick.error
     async def status_error(self, ctx, exception):
@@ -94,7 +75,8 @@ class Cog(commands.Cog, name='Voting'):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        if reaction.message not in self.votes_in_progress or user is self.bot.user:
+        if user == self.bot.user or reaction.message not in self.votes_in_progress:
+            log.debug("returning because bot reacted")
             return
         
         vote = self.votes_in_progress.get(reaction.message)
@@ -121,7 +103,7 @@ class Cog(commands.Cog, name='Voting'):
 ### UTILS
 
 # db functions aren't async and probably block
-async def get_voter_role(guild):
+def get_voter_role(guild):
     role_id = db.select("voting_role_id", "voting", "guild_id", guild.id)
     log.debug(f"received voting_role_id: {role_id} from sql query where guild_id = {guild.id}")
     if role_id is not None:
@@ -133,7 +115,7 @@ async def get_voter_role(guild):
 
 
 class Vote:
-    def __init__(self, message, voter_role, embed, votes_needed):
+    def __init__(self, message, voter_role, embed, votes_needed, target, ctx):
         self.message = message
         self.voter_role = voter_role
         self.embed = embed
@@ -141,16 +123,35 @@ class Vote:
         self.users_no = set()
         self.completed = False
         self.votes_needed = votes_needed
+        self.target = target
+        self.ctx = ctx
         
 
     @classmethod
-    async def create(self, message, embed, votes_needed):
-        voter_role = await get_voter_role(message.guild)
+    async def create(self, ctx, member):
+        voter_role = get_voter_role(ctx.guild)
+        votes_needed = math.floor(len([voter for voter in voter_role.members if not voter.bot]) / 2) + 1
+
+        embed = (discord.Embed(
+            color=discord.Colour(utils.random_color()),
+            title=f"Vote Kick:   5 minutes",
+            description=f"""Voting to kick: {member.mention}
+            Votes needed to win: **{votes_needed}**
+            {voter_role.mention} can vote"""
+            )
+            .set_thumbnail(url=member.avatar_url)
+            .add_field(name="Yes", value=0)
+            .add_field(name="No", value=0)
+        )
+        message = await ctx.send(embed = embed)
+        await message.add_reaction("✅")
+        await message.add_reaction("❌")
 
         # Construc object, add it to list
-        vote = Vote(message, voter_role, embed, votes_needed)
+        vote = Vote(message, voter_role, embed, votes_needed, member, ctx)
         Cog.votes_in_progress.update({message : vote})
         return vote
+
 
 
     async def voteyes(self, user):
@@ -164,6 +165,7 @@ class Vote:
         self.users_yes.add(user)
         await self.update()
 
+
     async def voteno(self, user):
         if user in self.users_no:
             log.debug(f"{user.display_name} has already voted no")
@@ -176,19 +178,34 @@ class Vote:
         await self.update()
 
 
+
+    async def votepass(self):
+        self.embed.title="Vote Kick:   Pass"
+        self.embed.color=discord.Colour(65280)
+        await self.message.edit(embed = self.embed)
+        self.completed = True
+        Cog.votes_in_progress.pop(self.message)
+        try:
+            await self.ctx.guild.kick(self.target)
+        except:
+            await self.ctx.send(f"There was an error kicking {self.target.display_name}")
+
+
+    async def votefail(self):
+        self.embed.title="Vote Kick:   Fail"
+        self.embed.color=discord.Colour(16711680)
+        await self.message.edit(embed = self.embed)
+        self.completed = True
+        Cog.votes_in_progress.pop(self.message)
+
+
+
     async def update(self):
         self.embed.set_field_at(0, name="Yes", value=len(self.users_yes))
         self.embed.set_field_at(1, name="No", value=len(self.users_no))
         await self.message.edit(embed = self.embed)
 
-    async def votepass(self):
-        self.embed.title="Vote Kick:   Pass"
-        self.embed.colordiscord.Colour(65280)
-        self.message.edit(embed = self.embed)
-        self.completed = True
-
-    async def votefail(self):
-        self.embed.title="Vote Kick:   Fail"
-        self.embed.colordiscord.Colour(16711680)
-        self.message.edit(embed = self.embed)
-        self.completed = True
+        if len(self.users_yes) >= self.votes_needed:
+            await self.votepass()
+        elif len(self.users_no) >= self.votes_needed:
+            await self.votefail()
