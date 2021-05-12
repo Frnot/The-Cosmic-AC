@@ -57,15 +57,18 @@ class Cog(commands.Cog, name='Voting'):
 
     ### VOTING
 
+    def can_vote(ctx):
+        return get_voter_role(ctx.guild) in ctx.author.roles
+
     @commands.command()
-    @commands.check(utils.is_owner)
+    @commands.check(can_vote)
     async def votekick(self, ctx, *, member: discord.Member):
         vote = await Vote.create(ctx, member)
 
         # wait some time before ending
         await asyncio.sleep(300)
         if not vote.completed:
-            await vote.votefail()
+            await vote.votetime()
 
     @votekick.error
     async def status_error(self, ctx, exception):
@@ -202,6 +205,13 @@ class Vote:
         self.completed = True
         Cog.votes_in_progress.pop(self.message)
 
+
+    async def votetime(self):
+        self.embed.title="Vote Kick:   Time Exceeded"
+        self.embed.color=discord.Colour(16711680)
+        await self.message.edit(embed = self.embed)
+        self.completed = True
+        Cog.votes_in_progress.pop(self.message)
 
 
     async def update(self):
