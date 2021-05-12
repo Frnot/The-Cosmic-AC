@@ -58,7 +58,7 @@ class Cog(commands.Cog, name='Voting'):
     ### VOTING
 
     def can_vote(ctx):
-        return get_voter_role(ctx.guild) in ctx.author.roles
+        return get_voter_role(ctx.guild) in ctx.author.roles or ctx.author == ctx.guild.owner
 
     @commands.command()
     @commands.check(can_vote)
@@ -136,7 +136,7 @@ class Vote:
     @classmethod
     async def create(self, ctx, member):
         voter_role = get_voter_role(ctx.guild)
-        voters = [voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot]
+        voters = [voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot or voter == ctx.guild.owner]
         votes_needed = math.floor(len(voters) / 2) + 1
 
         embed = (discord.Embed(
