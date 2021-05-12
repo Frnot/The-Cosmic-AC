@@ -8,7 +8,7 @@ priv_user_ids = [175786263201185792]
 async def is_owner(ctx):
     return ctx.author.id in priv_user_ids
 
-async def to_lower(input):
+def to_lower(input):
     return input.lower()
 
 def random_color():
