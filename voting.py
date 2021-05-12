@@ -87,7 +87,7 @@ class Cog(commands.Cog, name='Voting'):
         
         vote = self.votes_in_progress.get(reaction.message)
 
-        if user  not in vote.voters:
+        if user not in vote.voters:
             log.debug(f"removing reaction by user: {user.display_name} because they are not in the list of allowed voters")
             await reaction.remove(user)
             return
@@ -136,7 +136,9 @@ class Vote:
     @classmethod
     async def create(self, ctx, member):
         voter_role = get_voter_role(ctx.guild)
-        voters = [voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot or voter == ctx.guild.owner]
+        voters = set([voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot])
+        if ctx.guild.owner not in voters:
+            voters.add(ctx.guild.owner)
         votes_needed = math.floor(len(voters) / 2) + 1
 
         embed = (discord.Embed(
