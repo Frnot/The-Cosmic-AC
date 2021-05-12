@@ -75,14 +75,17 @@ class Cog(commands.Cog, name='Voting'):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        if user == self.bot.user or reaction.message not in self.votes_in_progress:
-            log.debug("returning because bot reacted")
+        if user == self.bot.user:
+            log.debug("Returning because bot reacted")
+            return
+        if reaction.message not in self.votes_in_progress:
+            log.debug("Returning because reacted message is not a vote")
             return
         
         vote = self.votes_in_progress.get(reaction.message)
 
-        if vote.voter_role not in user.roles:
-            log.debug(f"removing reaction by user: {user.display_name} because they do not have role: {vote.voter_role.name}")
+        if user  not in vote.voters:
+            log.debug(f"removing reaction by user: {user.display_name} because they are not in the list of allowed voters")
             await reaction.remove(user)
             return
 
@@ -115,9 +118,9 @@ def get_voter_role(guild):
 
 
 class Vote:
-    def __init__(self, message, voter_role, embed, votes_needed, target, ctx):
+    def __init__(self, message, voters, embed, votes_needed, target, ctx):
         self.message = message
-        self.voter_role = voter_role
+        self.voters = voters
         self.embed = embed
         self.users_yes = set()
         self.users_no = set()
@@ -130,7 +133,8 @@ class Vote:
     @classmethod
     async def create(self, ctx, member):
         voter_role = get_voter_role(ctx.guild)
-        votes_needed = math.floor(len([voter for voter in voter_role.members if not voter.bot]) / 2) + 1
+        voters = [voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot]
+        votes_needed = math.floor(len(voters) / 2) + 1
 
         embed = (discord.Embed(
             color=discord.Colour(utils.random_color()),
@@ -148,7 +152,7 @@ class Vote:
         await message.add_reaction("❌")
 
         # Construc object, add it to list
-        vote = Vote(message, voter_role, embed, votes_needed, member, ctx)
+        vote = Vote(message, voters, embed, votes_needed, member, ctx)
         Cog.votes_in_progress.update({message : vote})
         return vote
 
