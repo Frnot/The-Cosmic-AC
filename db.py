@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 db_filename = 'data.db'
 init_tables = {
     "snitch":"CREATE TABLE IF NOT EXISTS 'snitch' (guild_id INT PRIMARY KEY, hook_channel_id INT);",
-    "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set BLOB);",
+    "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set TEXT);",
     "voting":"CREATE TABLE IF NOT EXISTS 'voting' (guild_id INT PRIMARY KEY, voting_role_id INT);",
 }
 
@@ -58,6 +58,7 @@ def new_db():
     return conn
 
 
+
 def reload_tables(cursor):
     log.info("Updating database tables")
     for key, value in init_tables.items():
@@ -65,7 +66,6 @@ def reload_tables(cursor):
         cursor.execute(value)
     
     conn.commit()
-
 
 
 
@@ -85,24 +85,33 @@ def select(row, table, symbol, value):
         return result[0]
 
 
+# TODO: make the (?, ?) parameter variable length based on data rows
 def insert(table, data):
-    sql = f"INSERT INTO {table} ({', '.join(row[0] for row in data)}) VALUES ({', '.join(row[1] for row in data)})"
-    log.debug(f"Sending query: '{sql}' to database")
+    #sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES ({', '.join(str(row[1]) for row in data)})"
+    sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES (?, ?)"
+    payload = [row[1] for row in data]
+
+    log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
     try:
-        cursor.execute(sql)
+        cursor.execute(sql, payload)
         conn.commit()
     except Exception as e:
         log.error(f"SQL query failed: {e}")
 
 
+# TODO: make the (?, ?) parameter variable length based on data rows
 def update(table, data):
-    sql = f"UPDATE {table} SET ({', '.join(row[0] for row in data)}) = ({', '.join(row[1] for row in data)})"
-    log.debug(f"Sending query: '{sql}' to database")
+    #sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join(str(row[1]) for row in data)})"
+    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = (?, ?)"
+    payload = [row[1] for row in data]
+
+    log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
     try:
-        cursor.execute(sql)
+        cursor.execute(sql, payload)
         conn.commit()
     except Exception as e:
         log.error(f"SQL query failed: {e}")
+
 
 
 def delete(table, data):

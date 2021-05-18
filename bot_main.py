@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import db
 import cmd_main
 import snitch
-import anti_opp
+import blacklist
 import server_management
 import voting
 
@@ -35,7 +35,7 @@ def run_bot():
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))
     bot.add_cog(snitch.Cog(bot))
-    bot.add_cog(anti_opp.Cog(bot))
+    bot.add_cog(blacklist.Cog(bot))
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
     
