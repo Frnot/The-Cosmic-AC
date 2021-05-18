@@ -1,5 +1,4 @@
 import logging
-import db
 import bot_main
 
 debug = True
@@ -15,10 +14,11 @@ log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
 log_file.setLevel(logging.INFO)
 debug_log = logging.FileHandler('debug.log', mode='w', encoding="UTF-8")
 debug_log.setLevel(logging.DEBUG)
-format = logging.Formatter("%(asctime)s  %(name)-8s  %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
+format = logging.Formatter("%(asctime)s  %(name)-8s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
+debugformat = logging.Formatter("%(asctime)s  %(name)-8s : %(funcName)-10s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
 std_out.setFormatter(format)
 log_file.setFormatter(format)
-debug_log.setFormatter(format)
+debug_log.setFormatter(debugformat)
 
 root_logger.addHandler(std_out)
 root_logger.addHandler(log_file)
