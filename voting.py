@@ -63,10 +63,13 @@ class Cog(commands.Cog, name='Voting'):
     @commands.command()
     @commands.check(can_vote)
     async def votekick(self, ctx, *, member: discord.Member):
+        # TODO check that bot has permission to kick the target member
+        
         vote = await Vote.create(ctx, member)
+        await vote.message.pin()
 
         # wait some time before ending
-        await asyncio.sleep(300)
+        await asyncio.sleep(600)
         if not vote.completed:
             await vote.votetime()
 
@@ -143,7 +146,7 @@ class Vote:
 
         embed = (discord.Embed(
             color=discord.Colour(utils.random_color()),
-            title=f"Vote Kick:   5 minutes",
+            title=f"Vote Kick:   10 minutes",
             description=f"""Voting to kick: {member.mention}
             Votes needed to win: **{votes_needed}**
             {voter_role.mention} can vote"""
@@ -192,8 +195,7 @@ class Vote:
         self.embed.title="Vote Kick:   Pass"
         self.embed.color=discord.Colour(65280)
         await self.message.edit(embed = self.embed)
-        self.completed = True
-        Cog.votes_in_progress.pop(self.message)
+        await self.endvote()
         try:
             await self.ctx.guild.kick(self.target)
         except:
@@ -204,14 +206,19 @@ class Vote:
         self.embed.title="Vote Kick:   Fail"
         self.embed.color=discord.Colour(16711680)
         await self.message.edit(embed = self.embed)
-        self.completed = True
-        Cog.votes_in_progress.pop(self.message)
+        await self.endvote()
 
 
     async def votetime(self):
         self.embed.title="Vote Kick:   Time Exceeded"
         self.embed.color=discord.Colour(16711680)
         await self.message.edit(embed = self.embed)
+        await self.endvote()
+
+
+    async def endvote(self):
+        await self.message.unpin()
+        await self.message.clear_reactions()
         self.completed = True
         Cog.votes_in_progress.pop(self.message)
 
