@@ -1,6 +1,4 @@
-import discord
 from discord.ext import commands
-import utils
 import logging
 log = logging.getLogger(__name__)
 

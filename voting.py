@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-import utils
+import utils.admin
+import utils.general
 import logging
 import db
 import math
@@ -21,7 +22,7 @@ class Cog(commands.Cog, name='Voting'):
     ### SETUP
 
     @commands.command()
-    @commands.check(utils.is_owner)
+    @commands.check(utils.admin.is_owner)
     async def voterrole(self, ctx, *, new_role: discord.Role):
         old_role = get_voter_role(ctx.guild)
         
@@ -44,7 +45,7 @@ class Cog(commands.Cog, name='Voting'):
 
 
     @commands.command()
-    @commands.check(utils.is_owner)
+    @commands.check(utils.admin.is_owner)
     async def novoterrole(self, ctx):
         sql_data = ["guild_id", ctx.guild.id]
         db.delete("voting", sql_data)
@@ -145,7 +146,7 @@ class Vote:
         votes_needed = math.floor(len(voters) / 2) + 1
 
         embed = (discord.Embed(
-            color=discord.Colour(utils.random_color()),
+            color=discord.Colour(utils.general.random_color()),
             title=f"Vote Kick:   10 minutes",
             description=f"""Voting to kick: {member.mention}
             Votes needed to win: **{votes_needed}**

@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-import db
 import logging
-import utils
+import utils.admin
+import utils.general
 log = logging.getLogger(__name__)
 
 
@@ -37,7 +37,7 @@ class Cog(commands.Cog, name='General commands'):
 
     # leave server
     @commands.command()
-    @commands.check(utils.is_owner)
+    @commands.check(utils.admin.is_owner)
     async def leave(self, ctx):
         log.info("leave command fired")
         await ctx.guild.leave()
@@ -45,8 +45,8 @@ class Cog(commands.Cog, name='General commands'):
 
     # set status
     @commands.command()
-    @commands.check(utils.is_owner)
-    async def status(self, ctx, action: utils.to_lower, status):
+    @commands.check(utils.admin.is_owner)
+    async def status(self, ctx, action: utils.general.to_lower, status):
         if action == "playing":
             actiontype = discord.ActivityType.playing
         elif action == "streaming":
@@ -61,7 +61,7 @@ class Cog(commands.Cog, name='General commands'):
         await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
 
         log.info(f"setting status to {actiontype.name} `{status}`")
-        await utils.send_confirmation(ctx)
+        await utils.general.send_confirmation(ctx)
 
     @status.error
     async def status_error(self, ctx, exception):

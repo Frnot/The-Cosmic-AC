@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import utils
+import utils.admin
 import logging
 import db
 import pickle
@@ -23,7 +23,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
     
     # Commands
     @commands.command()
-    @commands.check(utils.is_server_owner)
+    @commands.check(utils.admin.is_server_owner)
     async def blacklist(self, ctx, *args):
         guild_id = ctx.guild.id
         
