@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import utils.admin
-import utils.general
+import utils.rng
 import logging
 import db
 import math
@@ -146,7 +146,7 @@ class Vote:
         votes_needed = math.floor(len(voters) / 2) + 1
 
         embed = (discord.Embed(
-            color=discord.Colour(utils.general.random_color()),
+            color=discord.Colour(utils.rng.random_color()),
             title=f"Vote Kick:   10 minutes",
             description=f"""Voting to kick: {member.mention}
             Votes needed to win: **{votes_needed}**
