@@ -41,8 +41,11 @@ class Cog(commands.Cog, name='Word Blacklist'):
             if len(args) < 2:
                 return #error
             else:
-                await self.remove_blacklist_word(args[1], guild_id)
-                await ctx.send(f"Removed `{args[1]}` from blacklist")
+                stat = await self.remove_blacklist_word(args[1], guild_id)
+                if stat:
+                    await ctx.send(f"Removed `{args[1]}` from blacklist")
+                else:
+                    await ctx.send(f"Blacklist does not contain `{args[1]}`")
         
         elif args[0].lower() == "show":
             message = await self.print(guild_id)
@@ -94,8 +97,10 @@ class Cog(commands.Cog, name='Word Blacklist'):
                 log.debug(f"Removed word '{word}' from blacklist for guild id: {guild_id}")
                 word_set.remove(word)
                 await self.flush_cache_to_db(guild_id)
+                return True
             else:
                 log.debug(f"Word '{word}' does not exist in the blacklist for guild id: {guild_id}")
+                return False
 
 
 
