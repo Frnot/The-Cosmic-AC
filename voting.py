@@ -40,8 +40,6 @@ class Cog(commands.Cog, name='Voting'):
             msg = f"Changed voting role from `{old_role.name}` to `{get_voter_role(ctx.guild).name}`"
             log.info(msg)
             message = await ctx.send(msg)
-        #await utils.send_confirmation(ctx)
-        #await message.delete(delay=30)
 
 
     @commands.command()
@@ -51,8 +49,6 @@ class Cog(commands.Cog, name='Voting'):
         db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
         message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{get_voter_role(ctx.guild).name}` can now vote.")
-        #await utils.send_confirmation(ctx)
-        #await message.delete(delay=30)
 
 
 
@@ -100,15 +96,6 @@ class Cog(commands.Cog, name='Voting'):
             await vote.voteyes(user)
         elif reaction.emoji == "❌":
             await vote.voteno(user)
-        
-
-    ## todo
-    # make "vote object"
-    # create it on start of vote
-    # add users to list of "yes" or list of "no"
-    # if user votes for no while already on yes list, remove them from yes list (remove reaction too)
-
-
 
 ### UTILS
 
