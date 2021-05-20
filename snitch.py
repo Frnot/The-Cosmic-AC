@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import utils
+import utils.admin
 import db
 import logging
 log = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class Cog(commands.Cog, name='Snitch'):
 
     # Commands
     @commands.command()
-    @commands.check(utils.is_owner)
+    @commands.check(utils.admin.is_owner)
     async def snitch(self, ctx):
         channel_id = db.select("hook_channel_id", "snitch", "guild_id", ctx.guild.id)
         log.debug(f"received channel_id: {channel_id} from sql query where guild_id = {ctx.guild.id}")
