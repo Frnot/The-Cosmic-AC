@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import logging
+import random
 import utils.admin
 import utils.general
 log = logging.getLogger(__name__)
@@ -42,6 +43,20 @@ class Cog(commands.Cog, name='General commands'):
         log.info("leave command fired")
         await ctx.guild.leave()
 
+    # flip a coin
+    @commands.command()
+    async def flip(self, ctx):
+        flip = random.randint(0, 1)
+        if flip == 1:
+            result = "HEADS"
+        else:
+            result = "TAILS"
+
+        embed = discord.Embed(
+            color=discord.Colour(utils.rng.random_color()),
+            title=f"Flipping a Coin",
+            description=f"You flipped: {result}")
+        await ctx.send(embed = embed)
 
     # set status
     @commands.command()
