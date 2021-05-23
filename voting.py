@@ -24,20 +24,20 @@ class Cog(commands.Cog, name='Voting'):
     @commands.command()
     @commands.check(utils.admin.is_owner)
     async def voterrole(self, ctx, *, new_role: discord.Role):
-        old_role = get_voter_role(ctx.guild)
+        old_role = await get_voter_role(ctx.guild)
         
         sql_data = [["voting_role_id", new_role.id], ["guild_id", ctx.guild.id]]
 
         if(old_role.id == new_role.id):
             message = await ctx.send(f"`{new_role.name}` is already the voting role in `{ctx.guild.name}`")
         elif old_role is ctx.guild.default_role:
-            db.insert("voting", sql_data)
-            msg = f"Added voting role: `{get_voter_role(ctx.guild).name}` in `{ctx.guild.name}`"
+            await db.insert("voting", sql_data)
+            msg = f"Added voting role: `{await get_voter_role(ctx.guild).name}` in `{ctx.guild.name}`"
             log.info(msg)
             message = await ctx.send(msg)
         else:
-            db.update("voting", sql_data)
-            msg = f"Changed voting role from `{old_role.name}` to `{get_voter_role(ctx.guild).name}`"
+            await db.update("voting", sql_data)
+            msg = f"Changed voting role from `{old_role.name}` to `{await get_voter_role(ctx.guild).name}`"
             log.info(msg)
             message = await ctx.send(msg)
 
@@ -46,16 +46,16 @@ class Cog(commands.Cog, name='Voting'):
     @commands.check(utils.admin.is_owner)
     async def novoterrole(self, ctx):
         sql_data = ["guild_id", ctx.guild.id]
-        db.delete("voting", sql_data)
+        await db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
-        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{get_voter_role(ctx.guild).name}` can now vote.")
+        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{await get_voter_role(ctx.guild).name}` can now vote.")
 
 
 
     ### VOTING
 
-    def can_vote(ctx):
-        return get_voter_role(ctx.guild) in ctx.author.roles or ctx.author == ctx.guild.owner
+    async def can_vote(ctx):
+        return await get_voter_role(ctx.guild) in ctx.author.roles or ctx.author == ctx.guild.owner
 
     @commands.command()
     @commands.check(can_vote)
@@ -99,9 +99,8 @@ class Cog(commands.Cog, name='Voting'):
 
 ### UTILS
 
-# db functions aren't async and probably block
-def get_voter_role(guild):
-    role_id = db.select("voting_role_id", "voting", "guild_id", guild.id)
+async def get_voter_role(guild):
+    role_id = await db.select("voting_role_id", "voting", "guild_id", guild.id)
     log.debug(f"received voting_role_id: {role_id} from sql query where guild_id = {guild.id}")
     if role_id is not None:
         return guild.get_role(role_id)
@@ -126,7 +125,7 @@ class Vote:
 
     @classmethod
     async def create(self, ctx, member):
-        voter_role = get_voter_role(ctx.guild)
+        voter_role = await get_voter_role(ctx.guild)
         voters = set([voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot])
         if ctx.guild.owner not in voters:
             voters.add(ctx.guild.owner)

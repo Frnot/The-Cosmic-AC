@@ -1,11 +1,11 @@
 import os
-import sqlite3
+import aiosqlite
+import asyncio
 import sys
 import logging
 log = logging.getLogger(__name__)
 
-############
-## TODO: make this async?
+
 
 db_filename = 'data.db'
 init_tables = {
@@ -14,112 +14,114 @@ init_tables = {
     "voting":"CREATE TABLE IF NOT EXISTS 'voting' (guild_id INT PRIMARY KEY, voting_role_id INT);",
 }
 
+
 ### "Constructor"
-def load():
+async def load():
     global conn
-    global cursor
 
     log.info("Initializing database")
     if os.path.exists(db_filename):
-        try:
-            conn = sqlite3.connect(db_filename)
-        except Exception as e:
-            print(e)
-            sys.exit("database error")
-        cursor = conn.cursor()
-        reload_tables(cursor)
+        conn = await connect()
+        await reload_tables(conn)
     else:
         log.info("Creating new database")
-        conn = new_db()
-        cursor = conn.cursor()
+        conn = await new_db()
     log.info("database loaded")
 
 def exit():
     log.info("Closing database connection.")
-    conn.close()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(conn.close())
 
-################
 
 
-def new_db():
-    try:
-        conn = sqlite3.connect(db_filename)
-    except Exception as e:
-        print(e)
-        sys.exit("database error")
-    cursor = conn.cursor()
+async def new_db():
+    conn = await connect()
 
     log.info("Setting up database tables")
-
     for key, value in init_tables.items():
         log.debug(f"Creating database table {key}")
-        cursor.execute(value)
+        await conn.execute(value)
 
-    conn.commit()
+    await conn.commit()
     return conn
 
 
 
-def reload_tables(cursor):
+async def connect():
+    try:
+        conn = await aiosqlite.connect(db_filename)
+    except Exception as e:
+        print(e)
+        sys.exit("database error")
+    return conn
+
+
+
+async def reload_tables(conn):
     log.info("Updating database tables")
     for key, value in init_tables.items():
         log.debug(f"Updating database table {key}")
-        cursor.execute(value)
+        await conn.execute(value)
     
-    conn.commit()
+    await conn.commit()
 
 
 
-def select(row, table, symbol, value):
+async def select(row, table, symbol, value):
     sql = f"SELECT {row} FROM {table} WHERE {symbol}={value}"
     log.debug(f"Sending query: '{sql}' to database")
 
     try:
-        cursor.execute(sql)
+        cursor = await conn.execute(sql)
     except Exception as e:
         log.error(f"SQL query failed: {e}")
+        return None
 
-    result = cursor.fetchone()
+    result = await cursor.fetchone()
+    log.debug(f"Query result: {result}")
+
     if result is None:
         return result
     else:
         return result[0]
 
 
+
 # TODO: make the (?, ?) parameter variable length based on data rows
-def insert(table, data):
-    #sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES ({', '.join(str(row[1]) for row in data)})"
+async def insert(table, data):
     sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES (?, ?)"
     payload = [row[1] for row in data]
 
     log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
     try:
-        cursor.execute(sql, payload)
-        conn.commit()
+        await conn.execute(sql, payload)
+        await conn.commit()
     except Exception as e:
         log.error(f"SQL query failed: {e}")
 
 
+
 # TODO: make the (?, ?) parameter variable length based on data rows
-def update(table, data):
-    #sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join(str(row[1]) for row in data)})"
+async def update(table, data):
     sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = (?, ?)"
     payload = [row[1] for row in data]
 
     log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
     try:
-        cursor.execute(sql, payload)
-        conn.commit()
+        await conn.execute(sql, payload)
+        await conn.commit()
     except Exception as e:
         log.error(f"SQL query failed: {e}")
 
 
 
-def delete(table, data):
+async def delete(table, data):
     sql = f"DELETE FROM {table} WHERE {data[0]} = {data[1]}"
     log.debug(f"Sending query: '{sql}' to database")
     try:
-        cursor.execute(sql)
-        conn.commit()
+        await conn.execute(sql)
+        await conn.commit()
     except Exception as e:
         log.error(f"SQL query failed: {e}")
