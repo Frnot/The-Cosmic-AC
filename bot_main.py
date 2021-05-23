@@ -21,16 +21,16 @@ bot = commands.Bot(command_prefix="./", intents=intents)
 @bot.event
 async def on_ready():
     log.info('Logged on as {0}!'.format(bot.user))
+    
+    # Load Database
+    log.info("Loading database")
+    await db.load()
 
 
 def run_bot():
     # Get token from .env file
     load_dotenv()
     BOT_TOKEN = os.getenv("TOKEN")   
-
-    # Load Database
-    log.info("Loading database")
-    db.load()
 
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))

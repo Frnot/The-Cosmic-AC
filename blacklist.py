@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 import utils.admin
 import logging
@@ -8,6 +7,9 @@ log = logging.getLogger(__name__)
 
 
 class Cog(commands.Cog, name='Word Blacklist'):
+    blacklists = {}
+    
+
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
@@ -18,9 +20,8 @@ class Cog(commands.Cog, name='Word Blacklist'):
         await self.sync_blacklists()
 
 
-
-    blacklists = {}
     
+
     # Commands
     @commands.command()
     @commands.check(utils.admin.is_server_owner)
@@ -121,7 +122,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
         serial_blacklist = pickle.dumps(self.blacklists.get(guild_id))
 
         sql_data = [["guild_id", guild_id], ["blacklist_set", serial_blacklist]]
-        db.update("blacklist", sql_data)
+        await db.update("blacklist", sql_data)
 
 
 
@@ -129,7 +130,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
         if self.blacklists.get(guild_id) is None:
             log.debug(f"Cache did not contain blacklist for guild id: {guild_id}. searching database")
 
-            serial_blacklist = db.select("blacklist_set", "blacklist", "guild_id", guild_id)
+            serial_blacklist = await db.select("blacklist_set", "blacklist", "guild_id", guild_id)
             
             if serial_blacklist is not None:
                 log.debug(f"found blacklist for guild id: {guild_id} in database. loading into cache")
@@ -157,7 +158,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
             serial_blacklist = pickle.dumps(self.blacklists.get(guild_id))
 
             sql_data = [["guild_id", guild_id], ["blacklist_set", serial_blacklist]]
-            db.insert("blacklist", sql_data)
+            await db.insert("blacklist", sql_data)
 
             return self.blacklists.get(guild_id)
 
@@ -170,7 +171,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
 
         self.blacklist.pop(guild_id)
         log.debug(f"Deleting blacklist with guild id: {guild_id} from database")
-        db.delete("blacklist", ["guild_id", guild_id])
+        await db.delete("blacklist", ["guild_id", guild_id])
 
 
 
