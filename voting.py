@@ -9,6 +9,7 @@ import asyncio
 log = logging.getLogger(__name__)
 
 ### TODO: make this bitch thread/async safe
+### TODO: make default role and @everyone role seperate
 
 class Cog(commands.Cog, name='Voting'):
     def __init__(self, bot):
@@ -30,14 +31,19 @@ class Cog(commands.Cog, name='Voting'):
 
         if(old_role.id == new_role.id):
             message = await ctx.send(f"`{new_role.name}` is already the voting role in `{ctx.guild.name}`")
-        elif old_role is ctx.guild.default_role:
+        elif new_role == ctx.guild.default_role:
+            sql_data = ["guild_id", ctx.guild.id]
+            await db.delete("voting", sql_data)
+            log.info(f"Removed voter role from `{ctx.guild.name}`")
+            message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{(await get_voter_role(ctx.guild)).name}` can now vote.")
+        elif old_role == ctx.guild.default_role:
             await db.insert("voting", sql_data)
-            msg = f"Added voting role: `{await get_voter_role(ctx.guild).name}` in `{ctx.guild.name}`"
+            msg = f"Added voting role: `{(await get_voter_role(ctx.guild)).name}` in `{ctx.guild.name}`"
             log.info(msg)
             message = await ctx.send(msg)
         else:
             await db.update("voting", sql_data)
-            msg = f"Changed voting role from `{old_role.name}` to `{await get_voter_role(ctx.guild).name}`"
+            msg = f"Changed voting role from `{old_role.name}` to `{(await get_voter_role(ctx.guild)).name}`"
             log.info(msg)
             message = await ctx.send(msg)
 
@@ -48,7 +54,7 @@ class Cog(commands.Cog, name='Voting'):
         sql_data = ["guild_id", ctx.guild.id]
         await db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
-        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{await get_voter_role(ctx.guild).name}` can now vote.")
+        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{(await get_voter_role(ctx.guild)).name}` can now vote.")
 
 
 
