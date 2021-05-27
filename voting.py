@@ -35,15 +35,18 @@ class Cog(commands.Cog, name='Voting'):
             sql_data = ["guild_id", ctx.guild.id]
             await db.delete("voting", sql_data)
             log.info(f"Removed voter role from `{ctx.guild.name}`")
-            message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{(await get_voter_role(ctx.guild)).name}` can now vote.")
+            new_role = await get_voter_role(ctx.guild)
+            message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{new_role.name}` can now vote.")
         elif old_role == ctx.guild.default_role:
             await db.insert("voting", sql_data)
-            msg = f"Added voting role: `{(await get_voter_role(ctx.guild)).name}` in `{ctx.guild.name}`"
+            new_role = await get_voter_role(ctx.guild)
+            msg = f"Added voting role: `{new_role.name}` in `{ctx.guild.name}`"
             log.info(msg)
             message = await ctx.send(msg)
         else:
             await db.update("voting", sql_data)
-            msg = f"Changed voting role from `{old_role.name}` to `{(await get_voter_role(ctx.guild)).name}`"
+            new_role = await get_voter_role(ctx.guild)
+            msg = f"Changed voting role from `{old_role.name}` to `{new_role.name}`"
             log.info(msg)
             message = await ctx.send(msg)
 
@@ -54,7 +57,8 @@ class Cog(commands.Cog, name='Voting'):
         sql_data = ["guild_id", ctx.guild.id]
         await db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
-        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{(await get_voter_role(ctx.guild)).name}` can now vote.")
+        new_role = await get_voter_role(ctx.guild)
+        message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{new_role.name}` can now vote.")
 
 
 
