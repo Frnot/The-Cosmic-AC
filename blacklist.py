@@ -67,13 +67,15 @@ class Cog(commands.Cog, name='Word Blacklist'):
     # Event Listeners
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author != self.bot.user:
+        if not message.author.bot:
             blacklist = await self.get_guild_blacklist(message.guild.id)
             if blacklist is not None:
-                hit = any(word in message.content for word in blacklist)
-                if hit:
-                    await message.delete()
-                    log.info(f"Removed message from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word")
+                #hit = any(word in message.content for word in blacklist)
+                for word in blacklist:
+                    if word in message.content:
+                        await message.delete()
+                        log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
+                    
     
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
