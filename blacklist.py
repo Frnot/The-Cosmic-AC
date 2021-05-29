@@ -59,6 +59,9 @@ class Cog(commands.Cog, name='Word Blacklist'):
             else:
                 await ctx.send(f"Cleared blacklisted words for `{ctx.guild.name}`")
 
+    @blacklist.error
+    async def blacklist_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
 
 
     # Event Listeners
