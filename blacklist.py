@@ -18,6 +18,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
     async def on_ready(self):
         log.info("Generating blacklist cache from database")
         await self.sync_blacklists()
+        log.info("Done generating blacklist cache from database")
 
 
     
