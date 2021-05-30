@@ -45,7 +45,7 @@ def run_bot():
     bot.add_cog(blacklist.Cog(bot))
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
-    
+
     # Load Database
     log.info("Loading database")
     db.load()
