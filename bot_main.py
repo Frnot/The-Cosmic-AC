@@ -3,6 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from importlib import metadata
 # Import modules
 import db
 import cmd_main
@@ -20,11 +21,12 @@ bot = commands.Bot(command_prefix="./", intents=intents)
 
 @bot.event
 async def on_ready():
-    log.info('Logged on as {0}!'.format(bot.user))
+    log.info(f"Logged on as {bot.user}!")
     
-    # Load Database
-    log.info("Loading database")
-    await db.load()
+    version = metadata.version('CosmicAC')
+    log.info(f"setting status to playing `v{version}`")
+    await bot.change_presence(activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
+
 
 
 def run_bot():
@@ -39,6 +41,10 @@ def run_bot():
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
     
+    # Load Database
+    log.info("Loading database")
+    db.load()
+
     # Start the bot
     bot.run(BOT_TOKEN)
 

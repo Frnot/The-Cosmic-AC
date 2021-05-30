@@ -9,12 +9,12 @@ log = logging.getLogger(__name__)
 class Cog(commands.Cog, name='Word Blacklist'):
     blacklists = {}
     
-
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
 
     # Initalize module when bot starts
+    @commands.Cog.listener()
     async def on_ready(self):
         log.info("Generating blacklist cache from database")
         await self.sync_blacklists()
@@ -70,7 +70,6 @@ class Cog(commands.Cog, name='Word Blacklist'):
         if not message.author.bot:
             blacklist = await self.get_guild_blacklist(message.guild.id)
             if blacklist is not None:
-                #hit = any(word in message.content for word in blacklist)
                 for word in blacklist:
                     if word in message.content:
                         await message.delete()
