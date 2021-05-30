@@ -43,6 +43,17 @@ class Cog(commands.Cog, name='Snitch'):
 
 
 
+    # Commands
+    @commands.command()
+    @commands.check(utils.admin.is_owner)
+    async def stopsnitching(self, ctx):
+        sql_data = ["guild_id", ctx.guild.id]
+        await db.delete("snitch", sql_data)
+        log.info(f"Removed snitch channel from {ctx.guild.name}")
+        await ctx.send(f"Will no longer snitch on `{ctx.guild.name}`")
+
+
+
     # Event Listeners
     @commands.Cog.listener()
     async def on_member_join(self, member):
