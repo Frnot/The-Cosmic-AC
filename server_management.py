@@ -15,12 +15,16 @@ class Cog(commands.Cog, name='Server Management'):
         if not member.bot:
             guild = member.guild
             newrole = guild.get_role(833019117992542248)
+            if newrole is None:
+                return
             await member.add_roles(newrole)
             log.info(f"{member.display_name} has been assigned the role `{newrole.name}`.")
 
     @commands.command()
     async def roleup(self, ctx):
         newrole = ctx.guild.get_role(833019117992542248)
+        if newrole is None:
+            return
         for member in ctx.guild.members:
             if not member.bot and newrole not in member.roles:
                 await member.add_roles(newrole)
