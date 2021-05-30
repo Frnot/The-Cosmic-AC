@@ -72,7 +72,7 @@ class Cog(commands.Cog, name='General commands'):
             actiontype = discord.ActivityType.watching
         elif action in ("competing", "competing in"):
             actiontype = discord.ActivityType.competing
-        
+
         await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
 
         log.info(f"setting status to {actiontype.name} `{status}`")

@@ -86,7 +86,7 @@ class Cog(commands.Cog, name='Snitch'):
     # Module Functions
     async def track_invites(self, guild):
         if not guild.get_member(self.bot.user.id).guild_permissions.manage_guild:
-            return
+            return None
         
         log.debug(f"Tracking invites for guild: {guild.name}")
         invite_set = await guild.invites()

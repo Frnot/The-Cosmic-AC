@@ -36,8 +36,8 @@ class Cog(commands.Cog, name='Word Blacklist'):
             if len(args) < 2:
                 return #error
             else:
-                await self.add_blacklist_word(args[1], guild_id)
-                await ctx.send(f"Added `{args[1]}` to blacklist")
+                await self.add_blacklist_word(args[1].lower(), guild_id)
+                await ctx.send(f"Added `{args[1].lower()}` to blacklist")
         
         elif args[0].lower() == "remove":
             if len(args) < 2:
@@ -45,9 +45,9 @@ class Cog(commands.Cog, name='Word Blacklist'):
             else:
                 stat = await self.remove_blacklist_word(args[1], guild_id)
                 if stat:
-                    await ctx.send(f"Removed `{args[1]}` from blacklist")
+                    await ctx.send(f"Removed `{args[1].lower()}` from blacklist")
                 else:
-                    await ctx.send(f"Blacklist does not contain `{args[1]}`")
+                    await ctx.send(f"Blacklist does not contain `{args[1].lower()}`")
         
         elif args[0].lower() == "show":
             message = await self.print(guild_id)
@@ -72,7 +72,7 @@ class Cog(commands.Cog, name='Word Blacklist'):
             blacklist = await self.get_guild_blacklist(message.guild.id)
             if blacklist is not None:
                 for word in blacklist:
-                    if word in message.content:
+                    if word in message.content.lower():
                         await message.delete()
                         log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
                     
