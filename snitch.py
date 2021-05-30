@@ -52,33 +52,40 @@ class Cog(commands.Cog, name='Snitch'):
             for invite_id in old_invite_map:
                 if new_invite_map.get(invite_id) is not None and old_invite_map[invite_id].uses != new_invite_map[invite_id].uses:
                     invite_used = new_invite_map[invite_id]
-                    await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined `{member.guild.name}` with invite `{invite_used.url}`")
+                    log.info(f"({member.guild.member_count}) {member.display_name} has joined {member.guild.name} with invite {invite_used.url}")
+                    await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined with invite `{invite_used.url}`")
                     return
         
-        await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined `{member.guild.name}`")
+        log.info(f"({member.guild.member_count}) {member.display_name} has joined {member.guild.name}")
+        await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined")
 
         
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await self.notify(member.guild, f"📉 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has left `{member.guild.name}`")
+        log.info(f"({member.guild.member_count}) {member.display_name} has left {member.guild.name}")
+        await self.notify(member.guild, f"📉 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has left")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
+        log.info(f"{user.display_name} has been banned from {guild.name}")
         await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been banned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
+        log.info(f"{user.display_name} has been unbanned from {guild.name}")
         await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been unbanned from `{guild.name}`")
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite):
-        await self.notify(invite.guild, f"{invite.inviter.mention} (`{invite.inviter.display_name}`) has created an invite for `{invite.guild.name}` : `{invite.url}`")
+        log.info(f"{invite.inviter.display_name} has created an invite for {invite.guild.name} : {invite.url}")
+        await self.notify(invite.guild, f"{invite.inviter.mention} (`{invite.inviter.display_name}`) has created an invite  : `{invite.url}`")
         await self.track_invites(invite.guild)
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite):
-        await self.notify(invite.guild, f"invite `{invite.url}` for `{invite.guild.name}` has been deleted")
+        log.info(f"invite {invite.url} for {invite.guild.name} has been deleted")
+        await self.notify(invite.guild, f"invite `{invite.url}` has been deleted")
         await self.track_invites(invite.guild)
 
 
@@ -96,8 +103,8 @@ class Cog(commands.Cog, name='Snitch'):
         self.guild_invite_maps[guild.id] = invite_map
         return invite_map
 
+
     async def notify(self, guild, message):
-        log.info(message)
         channel_id = await db.select("hook_channel_id", "snitch", "guild_id", guild.id)
         log.debug(f"received channel_id: {channel_id} from sql query")
         if channel_id is not None:
