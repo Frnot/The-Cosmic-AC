@@ -1,9 +1,14 @@
 import os
+import sys
 import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from importlib import metadata
+if sys.version_info >= (3, 8):
+    from importlib import metadata
+else:
+    import importlib_metadata as metadata
+
 # Import modules
 import db
 import cmd_main
