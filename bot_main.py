@@ -21,20 +21,22 @@ log = logging.getLogger(__name__)
 
 # Enable (all) intents
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="./", intents=intents)
+
+version = metadata.version('CosmicAC')
+
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("./"), intents=intents, \
+                    activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
 
 @bot.event
 async def on_ready():
-    log.info(f"Logged on as {bot.user}!")
-    
-    version = metadata.version('CosmicAC')
-    log.info(f"setting status to playing `v{version}`")
-    await bot.change_presence(activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
+    log.info(f"Logged on as {bot.user}!\nReady")
 
 
 
 def run_bot():
+    log.info(f"Running version v{version}")
+
     # Get token from .env file
     load_dotenv()
     BOT_TOKEN = os.getenv("TOKEN")   
