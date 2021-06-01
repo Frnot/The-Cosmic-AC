@@ -1,5 +1,6 @@
 import os
 import sys
+import asyncio
 import logging
 import discord
 from discord.ext import commands
@@ -19,27 +20,30 @@ import voting
 
 log = logging.getLogger(__name__)
 
-# Enable (all) intents
-intents = discord.Intents.all()
-
 version = metadata.version('CosmicAC')
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("./"), intents=intents, \
-                    activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
-
-@bot.event
-async def on_ready():
-    log.info(f"Logged on as {bot.user}!\nReady")
+#@bot.event
+#async def on_ready():
+#    log.info(f"Logged on as {bot.user}!\nReady")
 
 
 
 def run_bot():
     log.info(f"Running version v{version}")
 
+    
+    # Load Database
+    log.info("Loading database")
+    db.load()
+
     # Get token from .env file
     load_dotenv()
     BOT_TOKEN = os.getenv("TOKEN")   
+
+    # Create bot
+    bot = commands.Bot(command_prefix=commands.when_mentioned_or("./"), intents=discord.Intents.all(), \
+                        activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
     # Load modules
     bot.add_cog(cmd_main.Cog(bot))
@@ -48,13 +52,8 @@ def run_bot():
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
 
-    # Load Database
-    log.info("Loading database")
-    db.load()
-
-    # Start the bot
+    # Run bot
     bot.run(BOT_TOKEN)
 
-    # after the bot is somehow stopped
-    # run cleanup
-    db.exit()
+    # Cleanup
+    db.close()
