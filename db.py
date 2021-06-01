@@ -16,7 +16,11 @@ init_tables = {
 
 
 ### "Constructor"
-async def load_async():
+def load():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(loadasync())
+
+async def loadasync():
     global conn
 
     log.info("Initializing database")
@@ -28,16 +32,11 @@ async def load_async():
         conn = await new_db()
     log.info("database loaded")
 
-def load():
+def close():
     loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(load_async())
-
-def exit():
-    log.info("Closing database connection.")
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
     loop.run_until_complete(conn.close())
+    loop.stop()
+    log.info("Closed database connection.")
 
 
 
