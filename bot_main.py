@@ -12,6 +12,7 @@ else:
 
 # Import modules
 import db
+import admin_cmd
 import cmd_main
 import snitch
 import blacklist
@@ -46,6 +47,7 @@ def run_bot():
                         activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
     # Load modules
+    bot.add_cog(admin_cmd.Cog(bot))
     bot.add_cog(cmd_main.Cog(bot))
     bot.add_cog(snitch.Cog(bot))
     bot.add_cog(blacklist.Cog(bot))
