@@ -60,8 +60,14 @@ listener.stop()
 # If shutting down because of restart, execute main with the same arguments
 if admin_cmd.restart:
     print("Restarting code")
+
+    if sys.platform.startswith('linux'):
+        filepath = __file__
+    else:
+        filepath = f"\"{__file__}\""
+
     try:
-        os.execl(sys.executable, 'python', f"\"{__file__}\"", *sys.argv[1:])
+        os.execl(sys.executable, 'python', filepath, *sys.argv[1:])
     except Exception as e:
         listener.start()
         log.error(e)
