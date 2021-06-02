@@ -37,6 +37,7 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send("Updating...")
             log.info("Running Updates")
 
+            os.system("git stash")
             os.system("git pull")
             os.system(f"\"{sys.executable}\" -m pip install .")
             log.info("Updates done. Restarting main process")
