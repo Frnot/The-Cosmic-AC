@@ -23,7 +23,7 @@ class Cog(commands.Cog, name='Snitch'):
 
     # Commands
     @commands.command()
-    @commands.check(utils.admin.is_owner)
+    @commands.check(utils.admin.is_server_owner)
     async def snitch(self, ctx):
         channel_id = await db.select("hook_channel_id", "snitch", "guild_id", ctx.guild.id)
         log.debug(f"received channel_id: {channel_id} from sql query where guild_id = {ctx.guild.id}")
@@ -45,7 +45,7 @@ class Cog(commands.Cog, name='Snitch'):
 
     # Commands
     @commands.command()
-    @commands.check(utils.admin.is_owner)
+    @commands.check(utils.admin.is_server_owner)
     async def stopsnitching(self, ctx):
         sql_data = ["guild_id", ctx.guild.id]
         await db.delete("snitch", sql_data)
