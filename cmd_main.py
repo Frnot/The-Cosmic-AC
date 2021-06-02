@@ -12,9 +12,10 @@ class Cog(commands.Cog, name='General commands'):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
 
+
     # debug ping
     @commands.command()
-    async def i(self, ctx):
+    async def ping(self, ctx):
         await ctx.send(".")
 
     @commands.command()
@@ -35,13 +36,6 @@ class Cog(commands.Cog, name='General commands'):
         num = int(ammount)
         log.info(f"deleting {ammount} messages in channel: {ctx.channel} in guild: {ctx.guild}")
         await ctx.channel.purge(limit=num)
-
-    # leave server
-    @commands.command()
-    @commands.check(utils.admin.is_owner)
-    async def leave(self, ctx):
-        log.info("leave command fired")
-        await ctx.guild.leave()
 
     # flip a coin
     @commands.command()

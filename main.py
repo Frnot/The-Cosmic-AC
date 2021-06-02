@@ -1,14 +1,16 @@
+import os
+import sys
 import queue
 import logging
 from logging.handlers import QueueHandler, QueueListener
 import bot_main
+import admin_cmd
 
 debug = True
 
-
 # Configure logging handlers
-format = logging.Formatter("%(asctime)s  %(name)-8s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
-debugformat = logging.Formatter("%(asctime)s  %(name)-8s : %(funcName)-10s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
+format = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
+debugformat = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(funcName)-10s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
 
 std_out = logging.StreamHandler()
 std_out.setLevel(logging.INFO)
@@ -17,6 +19,9 @@ std_out.setFormatter(format)
 log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
 log_file.setLevel(logging.INFO)
 log_file.setFormatter(format)
+
+# rotate old debug log file here
+# mv debug.log debug.old.lg
 
 debug_log = logging.FileHandler('debug.log', mode='w', encoding="UTF-8")
 debug_log.setLevel(logging.DEBUG)
@@ -39,14 +44,26 @@ else:
     listener = QueueListener(log_queue, std_out, log_file, respect_handler_level=True)
 
 listener.start()
-
-
-
-# configure local logger
 log = logging.getLogger(__name__)
 
+
+
+# Run the Bot
 log.info("Starting bot")
 bot_main.run_bot()
 
-# Stop queue listener
+
+
+# Stop loggin queue listener
 listener.stop()
+
+# If shutting down because of restart, execute main with the same arguments
+if admin_cmd.restart:
+    print("Restarting code")
+    try:
+        os.execl(sys.executable, 'python', f"\"{__file__}\"", *sys.argv[1:])
+    except Exception as e:
+        listener.start()
+        log.error(e)
+        log.fatal("Cannot restart. exiting.")
+        listener.stop()
