@@ -23,7 +23,7 @@ class Cog(commands.Cog, name='Voting'):
     ### SETUP
 
     @commands.command()
-    @commands.check(utils.admin.is_owner)
+    @commands.check(utils.admin.is_server_owner)
     async def voterrole(self, ctx, *, new_role: discord.Role):
         old_role = await get_voter_role(ctx.guild)
         
@@ -52,7 +52,7 @@ class Cog(commands.Cog, name='Voting'):
 
 
     @commands.command()
-    @commands.check(utils.admin.is_owner)
+    @commands.check(utils.admin.is_server_owner)
     async def novoterrole(self, ctx):
         sql_data = ["guild_id", ctx.guild.id]
         await db.delete("voting", sql_data)

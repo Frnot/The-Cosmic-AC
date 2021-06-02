@@ -29,9 +29,10 @@ class Cog(commands.Cog, name='General commands'):
     async def nukechat(self, ctx):
         log.info(f"nuking channel: {ctx.channel} in guild: {ctx.guild}")
         await ctx.channel.purge()
-    
+
     # bulk delete the last few messages
     @commands.command()
+    @commands.check(utils.admin.is_server_owner)
     async def purge(self, ctx, ammount=100):
         num = int(ammount)
         log.info(f"deleting {ammount} messages in channel: {ctx.channel} in guild: {ctx.guild}")
@@ -51,27 +52,3 @@ class Cog(commands.Cog, name='General commands'):
             title=f"Flipping a Coin",
             description=f"You flipped: {result}")
         await ctx.send(embed = embed)
-
-    # set status
-    @commands.command()
-    @commands.check(utils.admin.is_owner)
-    async def status(self, ctx, action: utils.general.to_lower, status):
-        if action == "playing":
-            actiontype = discord.ActivityType.playing
-        elif action == "streaming":
-            actiontype = discord.ActivityType.streaming
-        elif action in ("listening", "listening to"):
-            actiontype = discord.ActivityType.listening
-        elif action == "watching":
-            actiontype = discord.ActivityType.watching
-        elif action in ("competing", "competing in"):
-            actiontype = discord.ActivityType.competing
-
-        await self.bot.change_presence(activity=discord.Activity(name=status, type=actiontype))
-
-        log.info(f"setting status to {actiontype.name} `{status}`")
-        await utils.general.send_confirmation(ctx)
-
-    @status.error
-    async def status_error(self, ctx, exception):
-        await ctx.send(f"error: {exception}")
