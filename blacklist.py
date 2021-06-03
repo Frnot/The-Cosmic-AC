@@ -3,15 +3,19 @@ import utils.admin
 import logging
 import db
 import pickle
+import db_cache
 log = logging.getLogger(__name__)
 
 
 class Cog(commands.Cog, name='Word Blacklist'):
     blacklists = {}
-    
+
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
+        
+        # TODO: use this
+        cache = db_cache.DBCache("blacklist", "guild_id", "blacklist_set")
 
     # Initalize module when bot starts
     @commands.Cog.listener()

@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 
 db_filename = 'data.db'
 init_tables = {
+    "cmd_prefix":"CREATE TABLE IF NOT EXISTS 'cmd_prefix' (guild_id INT PRIMARY KEY, prefix TEXT);",
     "snitch":"CREATE TABLE IF NOT EXISTS 'snitch' (guild_id INT PRIMARY KEY, hook_channel_id INT);",
     "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set TEXT);",
     "voting":"CREATE TABLE IF NOT EXISTS 'voting' (guild_id INT PRIMARY KEY, voting_role_id INT);",
@@ -58,7 +59,7 @@ async def connect():
         conn = await aiosqlite.connect(db_filename)
     except Exception as e:
         print(e)
-        sys.exit("database error")
+        sys.exit("Database connect error")
     return conn
 
 
@@ -73,14 +74,14 @@ async def reload_tables(conn):
 
 
 
-async def select(row, table, symbol, value):
-    sql = f"SELECT {row} FROM {table} WHERE {symbol}={value}"
+async def select(column, table, key, search_value):
+    sql = f"SELECT {column} FROM {table} WHERE {key}={search_value}"
     log.debug(f"Sending query: '{sql}' to database")
 
     try:
         cursor = await conn.execute(sql)
     except Exception as e:
-        log.error(f"SQL query failed: {e}")
+        log.error(f"SQL query 'select' failed: {e}")
         return None
 
     result = await cursor.fetchone()
@@ -103,7 +104,7 @@ async def insert(table, data):
         await conn.execute(sql, payload)
         await conn.commit()
     except Exception as e:
-        log.error(f"SQL query failed: {e}")
+        log.error(f"SQL query 'insert' failed: {e}")
 
 
 
@@ -117,7 +118,7 @@ async def update(table, data):
         await conn.execute(sql, payload)
         await conn.commit()
     except Exception as e:
-        log.error(f"SQL query failed: {e}")
+        log.error(f"SQL query 'update' failed: {e}")
 
 
 
@@ -128,4 +129,4 @@ async def delete(table, data):
         await conn.execute(sql)
         await conn.commit()
     except Exception as e:
-        log.error(f"SQL query failed: {e}")
+        log.error(f"SQL query 'delete' failed: {e}")
