@@ -43,7 +43,6 @@ class Cog(commands.Cog, name='Snitch'):
 
 
 
-    # Commands
     @commands.command()
     @commands.check(utils.admin.is_server_owner)
     async def stopsnitching(self, ctx):
@@ -63,8 +62,8 @@ class Cog(commands.Cog, name='Snitch'):
             for invite_id in old_invite_map:
                 if new_invite_map.get(invite_id) is not None and old_invite_map[invite_id].uses != new_invite_map[invite_id].uses:
                     invite_used = new_invite_map[invite_id]
-                    log.info(f"({member.guild.member_count}) {member.display_name} has joined {member.guild.name} with invite {invite_used.url}")
-                    await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined with invite `{invite_used.url}`")
+                    log.info(f"({member.guild.member_count}) {member.display_name} has joined {member.guild.name} with invite {invite_used.code}")
+                    await self.notify(member.guild, f"📈 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has joined with invite `{invite_used.code}`")
                     return
         
         log.info(f"({member.guild.member_count}) {member.display_name} has joined {member.guild.name}")
