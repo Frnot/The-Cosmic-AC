@@ -9,6 +9,7 @@ if sys.version_info >= (3, 8):
     from importlib import metadata
 else:
     import importlib_metadata as metadata
+from model import prefix
 
 # Import modules
 import db
@@ -43,7 +44,8 @@ def run_bot():
     BOT_TOKEN = os.getenv("TOKEN")   
 
     # Create bot
-    bot = commands.Bot(command_prefix=commands.when_mentioned_or("./"), intents=discord.Intents.all(), \
+    global bot
+    bot = commands.Bot(command_prefix=guild_prefix, intents=discord.Intents.all(), \
                         activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
     # Load modules
@@ -53,9 +55,15 @@ def run_bot():
     bot.add_cog(blacklist.Cog(bot))
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
+    # TODO:: register event for logged on as bot.user
 
     # Run bot
     bot.run(BOT_TOKEN)
 
     # Cleanup
     db.close()
+
+
+async def guild_prefix(bot, message):
+    prefix_return = await prefix.get(message.guild.id)
+    return commands.when_mentioned_or(prefix_return)(bot, message)

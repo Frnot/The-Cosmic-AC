@@ -2,9 +2,10 @@ import os
 import sys
 import discord
 from discord.ext import commands
-import logging
 import utils.admin
 import utils.general
+from model import prefix
+import logging
 log = logging.getLogger(__name__)
 
 restart = False
@@ -13,6 +14,7 @@ class Cog(commands.Cog, name='General commands'):
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
+
 
 
     # Leave server
@@ -31,6 +33,7 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send(f"error: {exception}")
 
 
+
     # Shutdown
     @commands.command()
     @commands.is_owner()
@@ -45,6 +48,7 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send("You do not have permission to use this command")
         else:
             await ctx.send(f"error: {exception}")
+
 
 
     # Install Updates
@@ -73,6 +77,7 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send(f"error: {exception}")
 
 
+
     # Set status
     @commands.command()
     @commands.is_owner()
@@ -99,3 +104,23 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send("You do not have permission to use this command")
         else:
             await ctx.send(f"error: {exception}")
+
+
+
+    # Change per-guild command prefix
+    @commands.command()
+    @commands.is_owner()
+    async def prefix(self, ctx, new_prefix=None):
+        if new_prefix is None:
+            current_prefix = await prefix.get(ctx.guild.id)
+            await ctx.send(f"Command prefix: `{current_prefix}`")
+            return
+        elif new_prefix == "reset":
+            log.info(f"Removing custom command prefix for guild '{ctx.guild.name}'")
+            await prefix.remove(ctx.guild.id)
+        else:
+            log.info(f"Changing custom command prefix for guild '{ctx.guild.name}'")
+            await prefix.add_or_update(ctx.guild.id, new_prefix)
+        
+        new_prefix = await prefix.get(ctx.guild.id)
+        await ctx.send(f"Command prefix for {ctx.guild.name} is now `{new_prefix}`")
