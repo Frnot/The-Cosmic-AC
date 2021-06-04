@@ -70,6 +70,7 @@ if admin_cmd.restart:
         os.execl(sys.executable, 'python', filepath, *sys.argv[1:])
     except Exception as e:
         listener.start()
+        log.error(f"Command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
         log.error(e)
         log.fatal("Cannot restart. exiting.")
         listener.stop()
