@@ -63,3 +63,7 @@ class DBCache:
                 await db.insert(self.table_name, sql_data)
             else:
                 await db.update(self.table_name, sql_data)
+
+
+    async def populate_cache(self):
+        # TODO: blank select query from db
