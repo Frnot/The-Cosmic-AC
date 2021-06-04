@@ -13,7 +13,7 @@ format = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(levelname)-7s
 debugformat = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(funcName)-10s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
 
 std_out = logging.StreamHandler()
-std_out.setLevel(logging.DEBUG)
+std_out.setLevel(logging.INFO)
 std_out.setFormatter(format)
 
 log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
