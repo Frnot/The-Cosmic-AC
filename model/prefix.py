@@ -1,5 +1,4 @@
 import db_cache
-import asyncio
 import logging
 log = logging.getLogger(__name__)
 

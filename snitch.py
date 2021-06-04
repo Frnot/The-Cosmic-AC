@@ -80,7 +80,7 @@ class Cog(commands.Cog, name='Snitch'):
     async def on_member_ban(self, guild, user):
         ban = await guild.fetch_ban(user)
         log.info(f"{user.display_name} has been banned from {guild.name} reason: {ban.reason}")
-        await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been banned. reason: `{ban.reason}`")
+        await self.notify(guild, f"{user.mention} (`{user.display_name}`) has been banned from `{guild.name}` reason: `{ban.reason}`")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
