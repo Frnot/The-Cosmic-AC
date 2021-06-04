@@ -67,11 +67,11 @@ if admin_cmd.restart:
         filepath = f"\"{__file__}\""
 
     try:
-        print(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
-        os.execl(sys.executable, 'python', filepath, *sys.argv[1:])
+        print(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:], {os.environ})'")
+        os.execle(sys.executable, 'python', filepath, *sys.argv[1:], os.environ)
     except Exception as e:
         listener.start()
-        log.error(f"Command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
+        log.error(f"Command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:], {os.environ})' failed.")
         log.error(e)
         log.fatal("Cannot restart. exiting.")
         listener.stop()
