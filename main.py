@@ -13,7 +13,7 @@ format = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(levelname)-7s
 debugformat = logging.Formatter("%(asctime)s %(process)d %(name)-8s : %(funcName)-10s : %(levelname)-7s : %(message)s", "%Y%m%d::%H:%M:%S")
 
 std_out = logging.StreamHandler()
-std_out.setLevel(logging.INFO)
+std_out.setLevel(logging.DEBUG)
 std_out.setFormatter(format)
 
 log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
@@ -67,6 +67,7 @@ if admin_cmd.restart:
         filepath = f"\"{__file__}\""
 
     try:
+        log.debug(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
         os.execl(sys.executable, 'python', filepath, *sys.argv[1:])
     except Exception as e:
         listener.start()
