@@ -67,7 +67,7 @@ if admin_cmd.restart:
         filepath = f"\"{__file__}\""
 
     try:
-        log.debug(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
+        print(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:])' failed.")
         os.execl(sys.executable, 'python', filepath, *sys.argv[1:])
     except Exception as e:
         listener.start()
