@@ -62,16 +62,21 @@ if admin_cmd.restart:
     print("Restarting code")
 
     if sys.platform.startswith('linux'):
+        exec = sys.executable
         filepath = __file__
     else:
+        exec = f"\"{sys.executable}\""
         filepath = f"\"{__file__}\""
 
+    argv = [exec, filepath] + sys.argv[1:]
+
     try:
-        print(f"Running command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:], {os.environ})'")
-        os.execle(sys.executable, 'python', filepath, *sys.argv[1:], os.environ)
+        print(f"Running command: 'os.execv({sys.executable}, {argv})'")
+        os.execv(sys.executable, argv)
     except Exception as e:
+        print(e)
         listener.start()
-        log.error(f"Command: 'os.execl({sys.executable}, 'python', {filepath}, *sys.argv[1:], {os.environ})' failed.")
+        log.error(f"Command: 'os.execv({sys.executable}, {argv})' failed.")
         log.error(e)
         log.fatal("Cannot restart. exiting.")
         listener.stop()
