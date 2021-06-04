@@ -62,13 +62,9 @@ if admin_cmd.restart:
     print("Restarting code")
 
     if sys.platform.startswith('linux'):
-        exec = sys.executable
-        filepath = __file__
+        argv = [sys.executable, __file__] + sys.argv[1:]
     else:
-        exec = f"\"{sys.executable}\""
-        filepath = f"\"{__file__}\""
-
-    argv = [exec, filepath] + sys.argv[1:]
+        argv = [f"\"{sys.executable}\"", f"\"{__file__}\""] + sys.argv[1:]
 
     try:
         print(f"Running command: 'os.execv({sys.executable}, {argv})'")
