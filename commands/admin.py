@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import utils.admin
 import utils.general
-from model import prefix
+from model import prefix, blacklist
 import logging
 log = logging.getLogger(__name__)
 
@@ -14,6 +14,7 @@ class Cog(commands.Cog, name='General commands'):
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
+
 
 
 
@@ -34,6 +35,7 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
+
     # Shutdown
     @commands.command()
     @commands.is_owner()
@@ -48,6 +50,7 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send("You do not have permission to use this command")
         else:
             await ctx.send(f"error: {exception}")
+
 
 
 
@@ -84,6 +87,7 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
+
     # Set status
     @commands.command()
     @commands.is_owner()
@@ -113,6 +117,7 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
+
     # Change per-guild command prefix
     @commands.command()
     @commands.is_owner()
@@ -130,3 +135,55 @@ class Cog(commands.Cog, name='General commands'):
         
         new_prefix = await prefix.get(ctx.guild.id)
         await ctx.send(f"Command prefix for {ctx.guild.name} is now `{new_prefix}`")
+
+
+
+
+    # Blacklist words
+    @commands.command()
+    @commands.check(utils.admin.is_server_owner)
+    async def blacklist(self, ctx, *args):
+        guild_id = ctx.guild.id
+
+        if len(args) < 1:
+            return #error
+
+        if args[0].lower() == "add":
+            if len(args) < 2:
+                return #error
+            else:
+                await blacklist.add_word(guild_id, args[1])
+                await ctx.send(f"Added `{args[1]}` to blacklist")
+
+        elif args[0].lower() == "remove":
+            if len(args) < 2:
+                return #error
+            else:
+                stat = await blacklist.remove_word(guild_id, args[1])
+                if stat:
+                    await ctx.send(f"Removed `{args[1]}` from blacklist")
+                else:
+                    await ctx.send(f"Blacklist does not contain `{args[1]}`")
+
+        elif args[0].lower() == "clear":
+            stat = await blacklist.clear_blacklist(guild_id)
+            if stat is None:
+                await ctx.send(f"There are no blacklisted words in this server")
+            else:
+                await ctx.send(f"Cleared blacklisted words for `{ctx.guild.name}`")
+
+        elif args[0].lower() == "show":
+            list = await blacklist.get(guild_id)
+            if not list:
+                message = "There are no blacklisted words in this server"
+            else:
+                message = f"Blacklisted words: `{'`, `'.join(list)}`"
+            await ctx.send(message)
+
+
+    @blacklist.error
+    async def blacklist_error(self, ctx, exception):
+        if isinstance(exception, commands.NotOwner):
+            await ctx.send("You do not have permission to use this command")
+        else:
+            await ctx.send(f"error: {exception}")

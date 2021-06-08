@@ -2,6 +2,8 @@
 # Cache is automatically maintained
 # Use this class instead of accessing database manually
 
+## TODO: handle serialized database payloads?
+
 import db
 import logging
 log = logging.getLogger(__name__)
@@ -50,6 +52,12 @@ class DBCache:
         return self.cache_dict.get(key)
 
 
+    async def get_keys(self):
+        await self.populate_cache()
+        return self.cache_dict.keys()
+
+
+
     async def flush_cache_item_to_db(self, key):
         cache_item = self.cache_dict.get(key)
         db_item = await db.select(self.value_name, self.table_name, self.key_name, key)
@@ -66,4 +74,6 @@ class DBCache:
 
 
     async def populate_cache(self):
-        # TODO: blank select query from db
+        db_dump = await db.select_all(self.table_name)
+        for row in db_dump:
+            self.cache_dict[row[0]] = row[1]

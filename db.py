@@ -11,7 +11,8 @@ db_filename = 'data.db'
 init_tables = {
     "cmd_prefix":"CREATE TABLE IF NOT EXISTS 'cmd_prefix' (guild_id INT PRIMARY KEY, prefix TEXT);",
     "snitch":"CREATE TABLE IF NOT EXISTS 'snitch' (guild_id INT PRIMARY KEY, hook_channel_id INT);",
-    "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set TEXT);",
+    #"blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set TEXT);",
+    "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set BLOB);",
     "voting":"CREATE TABLE IF NOT EXISTS 'voting' (guild_id INT PRIMARY KEY, voting_role_id INT);",
 }
 
@@ -91,6 +92,23 @@ async def select(column, table, key, search_value):
         return result
     else:
         return result[0]
+
+
+
+async def select_all(table):
+    sql = f"SELECT * FROM {table}"
+    log.debug(f"Sending query: '{sql}' to database")
+
+    try:
+        cursor = await conn.execute(sql)
+    except Exception as e:
+        log.error(f"SQL query 'select' failed: {e}")
+        return None
+    
+    result = await cursor.fetchall()
+    log.debug(f"Query result: {result}")
+
+    return result
 
 
 

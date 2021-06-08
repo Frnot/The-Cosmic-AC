@@ -1,9 +1,8 @@
 import os
 import sys
-import asyncio
 import logging
 import discord
-from discord.ext import commands
+from discord.ext import commands as dcommands
 from dotenv import load_dotenv
 if sys.version_info >= (3, 8):
     from importlib import metadata
@@ -13,10 +12,9 @@ from model import prefix
 
 # Import modules
 import db
-import admin_cmd
-import cmd_main
+import commands.admin, commands.general
+import events.admin
 import snitch
-import blacklist
 import server_management
 import voting
 
@@ -45,16 +43,17 @@ def run_bot():
 
     # Create bot
     global bot
-    bot = commands.Bot(command_prefix=guild_prefix, intents=discord.Intents.all(), \
+    bot = dcommands.Bot(command_prefix=guild_prefix, intents=discord.Intents.all(), \
                         activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
     # Load modules
-    bot.add_cog(admin_cmd.Cog(bot))
-    bot.add_cog(cmd_main.Cog(bot))
+    bot.add_cog(commands.admin.Cog(bot))
+    bot.add_cog(commands.general.Cog(bot))
     bot.add_cog(snitch.Cog(bot))
-    bot.add_cog(blacklist.Cog(bot))
     bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
+
+    bot.add_cog(events.admin.Cog(bot))
     # TODO:: register event for logged on as bot.user
 
     # Run bot
@@ -66,4 +65,4 @@ def run_bot():
 
 async def guild_prefix(bot, message):
     prefix_return = await prefix.get(message.guild.id)
-    return commands.when_mentioned_or(prefix_return)(bot, message)
+    return dcommands.when_mentioned_or(prefix_return)(bot, message)

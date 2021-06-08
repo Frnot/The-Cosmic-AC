@@ -4,7 +4,7 @@ import queue
 import logging
 from logging.handlers import QueueHandler, QueueListener
 import bot_main
-import admin_cmd
+from commands import admin
 
 debug = True
 
@@ -58,7 +58,7 @@ bot_main.run_bot()
 listener.stop()
 
 # If shutting down because of restart, execute main with the same arguments
-if admin_cmd.restart:
+if admin.restart:
     print("Restarting code")
 
     if sys.platform.startswith('linux'):
