@@ -53,18 +53,17 @@ async def clear_blacklist(guild_id):
 
 async def sync_blacklists(bot):
     member_guild_ids = set([guild.id for guild in bot.guilds])
-    blacklist_guild_ids = await blacklists.get_keys()
+    cached_guild_ids = await blacklists.get_keys()
 
-    log.debug("Pruning orphaned blacklists from cache")
-    for blacklist_guild_id in blacklist_guild_ids:
-        if blacklist_guild_id not in member_guild_ids:
-            await blacklists.remove(blacklist_guild_id)
+    log.debug("Pruning orphaned blacklists")
+    for cached_guild_id in cached_guild_ids:
+        if cached_guild_id not in member_guild_ids:
+            await blacklists.remove(cached_guild_id)
 
     log.debug("Loading blacklists for member guilds into cache")
     for member_guild_id in member_guild_ids:
         if await blacklists.get(member_guild_id) is None:
             await blacklists.add_or_update(member_guild_id, set())
-    # if blacklist is in db but not in guild, remove it
 
 
 
