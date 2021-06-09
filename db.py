@@ -94,6 +94,23 @@ async def select(column, table, key, search_value):
 
 
 
+async def select_all(table):
+    sql = f"SELECT * FROM {table}"
+    log.debug(f"Sending query: '{sql}' to database")
+
+    try:
+        cursor = await conn.execute(sql)
+    except Exception as e:
+        log.error(f"SQL query 'select' failed: {e}")
+        return None
+    
+    result = await cursor.fetchall()
+    log.debug(f"Query result: {result}")
+
+    return result
+
+
+
 # TODO: make the (?, ?) parameter variable length based on data rows
 async def insert(table, data):
     sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES (?, ?)"
