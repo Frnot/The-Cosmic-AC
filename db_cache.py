@@ -24,7 +24,7 @@ class DBCache:
             else:
                 log.debug(f"Changing {key} in {self.table_name}")
             self.cache_dict[key] = value
-        
+
         await self.flush_cache_item_to_db(key)
 
 
@@ -49,7 +49,7 @@ class DBCache:
                 log.debug(f"Found {self.value_name} in table {self.table_name} for {self.key_name} = {key}. Loading into cache")
                 if self.serialize: cache_item = pickle.loads(cache_item)
                 self.cache_dict[key] = cache_item
-        
+
         return self.cache_dict.get(key)
 
 
