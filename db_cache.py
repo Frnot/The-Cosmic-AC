@@ -2,18 +2,18 @@
 # Cache is automatically maintained
 # Use this class instead of accessing database manually
 
-## TODO: handle serialized database payloads?
-
 import db
 import logging
+import pickle
 log = logging.getLogger(__name__)
 
 class DBCache:
-    def __init__(self, table_name, key_name, value_name):
+    def __init__(self, table_name, key_name, value_name, serialize=False):
         self.cache_dict = {}
         self.table_name = table_name
         self.key_name = key_name
         self.value_name = value_name
+        self.serialize = serialize
 
 
 
@@ -47,6 +47,7 @@ class DBCache:
                 return None
             else:
                 log.debug(f"Found {self.value_name} in table {self.table_name} for {self.key_name} = {key}. Loading into cache")
+                if self.serialize: cache_item = pickle.loads(cache_item)
                 self.cache_dict[key] = cache_item
         
         return self.cache_dict.get(key)
@@ -59,8 +60,9 @@ class DBCache:
 
 
     async def flush_cache_item_to_db(self, key):
-        cache_item = self.cache_dict.get(key)
         db_item = await db.select(self.value_name, self.table_name, self.key_name, key)
+        cache_item = self.cache_dict.get(key)
+        if self.serialize: cache_item = pickle.dumps(cache_item)
 
         if cache_item == db_item:
             log.debug(f"Cache and DB are already in sync for key '{key}' in table '{self.table_name}'")
@@ -76,4 +78,6 @@ class DBCache:
     async def populate_cache(self):
         db_dump = await db.select_all(self.table_name)
         for row in db_dump:
-            self.cache_dict[row[0]] = row[1]
+            data = row[1]
+            if self.serialize: data = pickle.loads(data)
+            self.cache_dict[row[0]] = data
