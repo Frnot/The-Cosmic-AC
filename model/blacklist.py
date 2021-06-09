@@ -2,9 +2,9 @@ import db_cache
 import logging
 log = logging.getLogger(__name__)
 
-blacklists = db_cache.DBCache("blacklist", "guild_id", "blacklist_set")
+blacklists = db_cache.DBCache("blacklist", "guild_id", "blacklist_set", True)
 
-## TODO: need to pickle wordsets into database payload
+
 
 async def add_word(guild_id, word):
     word = scrub(word)

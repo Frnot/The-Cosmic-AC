@@ -21,10 +21,13 @@ class Cog(commands.Cog, name='General commands'):
     @commands.Cog.listener()
     async def on_message(self, message):
         if not message.author.bot:
-            word_set = await blacklist.get(message.guild.id)
+            # perform a shallow copy on word_set to avoid race condition
+            word_set = set(await blacklist.get(message.guild.id))
+            
+            test_message = message.content.lower()
             if word_set is not None:
                 for word in word_set:
-                    if word in message.content.lower():
+                    if word in test_message:
                         await message.delete()
                         log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
 
