@@ -1,5 +1,6 @@
 from discord.ext import commands
 from model import blacklist
+import time
 import logging
 log = logging.getLogger(__name__)
 
@@ -15,8 +16,20 @@ class Cog(commands.Cog, name='General commands'):
     @commands.Cog.listener()
     async def on_ready(self):
         log.info("Loading blacklist database into cache")
+        time_start = time.perf_counter()
         await blacklist.sync_blacklists(self.bot)
-        log.info("Done.")
+        time_end = time.perf_counter()
+        log.info(f"Done. took {time_end - time_start:0.4f} seconds")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        log.info("Creating empty blacklist for new guild")
+        await blacklist.sync_blacklists(self.bot)
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        log.info("Removing blacklist for expired guild")
+        await blacklist.sync_blacklists(self.bot)
 
     @commands.Cog.listener()
     async def on_message(self, message):

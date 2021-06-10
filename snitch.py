@@ -75,6 +75,7 @@ class Cog(commands.Cog, name='Snitch'):
     async def on_member_remove(self, member):
         log.info(f"({member.guild.member_count}) {member.display_name} has left {member.guild.name}")
         await self.notify(member.guild, f"📉 ({member.guild.member_count}) {member.mention} (`{member.display_name}`) has left")
+        # Get audit log entry and snitch on leave or kick and reason
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
