@@ -55,7 +55,7 @@ class DBCache:
 
     async def get_keys(self):
         await self.populate_cache()
-        return self.cache_dict.keys()
+        return list(self.cache_dict.keys())
 
 
 
