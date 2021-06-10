@@ -1,6 +1,7 @@
 from discord.ext import commands
 import utils.admin
 import db
+import time
 import logging
 log = logging.getLogger(__name__)
 
@@ -15,8 +16,11 @@ class Cog(commands.Cog, name='Snitch'):
     @commands.Cog.listener()
     async def on_ready(self):
         log.info("Generating invite tracking sets")
+        time_start = time.perf_counter()
         for guild in self.bot.guilds:
             await self.track_invites(guild)
+        time_end = time.perf_counter()
+        log.info(f"Generating invite tracking sets: completed in {time_end - time_start:0.6f} seconds")
 
 
 

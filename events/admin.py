@@ -19,17 +19,25 @@ class Cog(commands.Cog, name='General commands'):
         time_start = time.perf_counter()
         await blacklist.sync_blacklists(self.bot)
         time_end = time.perf_counter()
-        log.info(f"Done. took {time_end - time_start:0.4f} seconds")
+        log.info(f"Loading blacklist database into cache: complete in {time_end - time_start:0.6f} seconds")
 
+    # Optimize when necessary (guild count is sufficiently large)
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         log.info("Creating empty blacklist for new guild")
+        time_start = time.perf_counter()
         await blacklist.sync_blacklists(self.bot)
+        time_end = time.perf_counter()
+        log.info(f"Creating empty blacklist for new guild: complete in {time_end - time_start:0.6f} seconds")
 
+    # Optimize when necessary (guild count is sufficiently large)
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         log.info("Removing blacklist for expired guild")
+        time_start = time.perf_counter()
         await blacklist.sync_blacklists(self.bot)
+        time_end = time.perf_counter()
+        log.info(f"Removing blacklist for expired guild: complete in {time_end - time_start:0.6f} seconds")
 
     @commands.Cog.listener()
     async def on_message(self, message):
