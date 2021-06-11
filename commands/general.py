@@ -52,3 +52,21 @@ class Cog(commands.Cog, name='General commands'):
             title=f"Flipping a Coin",
             description=f"You flipped: {result}")
         await ctx.send(embed = embed)
+    
+    @commands.command()
+    async def random(self, ctx, start, end):
+        num = random.randint(int(start), int(end))
+
+        embed = discord.Embed(
+            color=discord.Colour(utils.rng.random_color()),
+            title=f"Random number  {start} - {end}",
+            description=f"Value: {num}")
+        await ctx.send(embed = embed)
+
+    @random.error
+    async def random_error(self, ctx, exception):
+        # if not enough args
+        # if isinstance(exception, commands.NotOwner):
+            #await ctx.send("You do not have permission to use this command")
+        #else:
+        await ctx.send(f"error: {exception}")

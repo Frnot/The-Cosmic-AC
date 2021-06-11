@@ -107,6 +107,8 @@ class Cog(commands.Cog, name='Snitch'):
 
 
     # Module Functions
+
+    # only do this for guilds where snitching is enabled
     async def track_invites(self, guild):
         if not guild.get_member(self.bot.user.id).guild_permissions.manage_guild:
             return None

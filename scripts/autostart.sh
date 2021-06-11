@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Put file in crontab
-# @reboot /bot/autostart.sh
+# @reboot sleep 30 && /<bot_directory_path>/scripts/autostart.sh
 
 SESSION_NAME=bot
 
@@ -12,4 +12,4 @@ tmux_command() {
 tmux new -d -s $SESSION_NAME
 
 tmux_command cd /bot
-tmux_command python3 main.py
+tmux_command python3 main.py -q

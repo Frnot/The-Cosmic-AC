@@ -29,7 +29,7 @@ version = metadata.version('CosmicAC')
 
 
 
-def run_bot():
+def run_bot(bot_token):
     log.info(f"Running version v{version}")
 
     
@@ -37,9 +37,6 @@ def run_bot():
     log.info("Loading database")
     db.load()
 
-    # Get token from .env file
-    load_dotenv()
-    BOT_TOKEN = os.getenv("TOKEN")   
 
     # Create bot
     global bot
@@ -57,7 +54,7 @@ def run_bot():
     # TODO:: register event for logged on as bot.user
 
     # Run bot
-    bot.run(BOT_TOKEN)
+    bot.run(bot_token)
 
     # Cleanup
     db.close()
