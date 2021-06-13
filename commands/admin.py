@@ -197,10 +197,10 @@ class Cog(commands.Cog, name='Admin Commands'):
         if(old_channel_id == new_channel_id):
             await ctx.send("I'm already snitching in this channel")
         elif old_channel_id is None:
-            log.info(f"started snitching on {ctx.guild.name}")
+            log.info(f"started snitching on '{ctx.guild.name}'")
             await ctx.send(f"Will snitch on `{ctx.guild.name}` in `#{ctx.channel.name}`")
         else:
-            log.info(f"changed snitch hooked channel from {self.bot.get_channel(old_channel_id)} to {ctx.channel.name}")
+            log.info(f"changed snitch hooked channel in '{ctx.guild.name}' from '{self.bot.get_channel(old_channel_id)}' to '{ctx.channel.name}'")
             await ctx.send(f"Moved `{ctx.guild.name}` snitch channel to `#{ctx.channel.name}`")
 
     @snitch.error
@@ -211,8 +211,8 @@ class Cog(commands.Cog, name='Admin Commands'):
     @commands.command()
     @commands.check(utils.admin.is_server_owner)
     async def stopsnitching(self, ctx):
-        snitch.remove_guild(ctx.guild)
-        log.info(f"Removed snitch channel from {ctx.guild.name}")
+        await snitch.remove_guild(ctx.guild)
+        log.info(f"Removed snitch channel from '{ctx.guild.name}'")
         await ctx.send(f"Will no longer snitch on `{ctx.guild.name}`")
 
     @stopsnitching.error
