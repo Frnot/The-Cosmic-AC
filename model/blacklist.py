@@ -6,32 +6,42 @@ blacklists = db_cache.DBCache("blacklist", "guild_id", "blacklist_set", True)
 
 
 
-async def add_word(guild_id, word):
-    word = scrub(word)
-    word_set = await blacklists.get(guild_id)
-    if word_set is None:
-        word_set = set()
+async def add_words(guild_id, words):
+    added = []
+    for word in words:
+        word = scrub(word)
+        word_set = await blacklists.get(guild_id)
+        if word_set is None:
+            word_set = set()
 
-    log.debug(f"Adding word '{word}' to blacklist for guild id: {guild_id}")
-    word_set.add(word)
-    await blacklists.add_or_update(guild_id, word_set)
+        log.debug(f"Adding word '{word}' to blacklist for guild id: {guild_id}")
+        word_set.add(word)
+        await blacklists.add_or_update(guild_id, word_set)
+        added.append(word)
+
+    return added
 
 
 
-async def remove_word(guild_id, word):
-    word = scrub(word)
-    word_set = await blacklists.get(guild_id)
-    if word_set is None:
-            log.debug(f"Cannot remove {word} from blacklist for guild id: {guild_id}")
-    else:
-        if word in word_set:
-            log.debug(f"Removed word '{word}' from blacklist for guild id: {guild_id}")
-            word_set.remove(word)
-            await blacklists.add_or_update(guild_id, word_set)
-            return True
+async def remove_words(guild_id, words):
+    removed = []
+    error = []
+    for word in words:
+        word = scrub(word)
+        word_set = await blacklists.get(guild_id)
+        if word_set is None:
+                log.debug(f"Cannot remove {word} from blacklist for guild id: {guild_id}. Blacklist is empty")
         else:
-            log.debug(f"Word '{word}' does not exist in the blacklist for guild id: {guild_id}")
-            return False
+            if word in word_set:
+                log.debug(f"Removed word '{word}' from blacklist for guild id: {guild_id}")
+                word_set.remove(word)
+                await blacklists.add_or_update(guild_id, word_set)
+                removed.append(word)
+            else:
+                log.debug(f"Word '{word}' does not exist in the blacklist for guild id: {guild_id}")
+                error.append(word)
+
+    return (removed, error)
 
 
 

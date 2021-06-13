@@ -153,18 +153,18 @@ class Cog(commands.Cog, name='Admin Commands'):
             if len(args) < 2:
                 return #error
             else:
-                await blacklist.add_word(guild_id, args[1])
-                await ctx.send(f"Added `{args[1]}` to blacklist")
+                words = await blacklist.add_words(guild_id, args[1:])
+                await ctx.send(f"Added `{'`, `'.join(words)}` to blacklist")
 
         elif args[0].lower() == "remove":
             if len(args) < 2:
                 return #error
             else:
-                stat = await blacklist.remove_word(guild_id, args[1])
-                if stat:
-                    await ctx.send(f"Removed `{args[1]}` from blacklist")
-                else:
-                    await ctx.send(f"Blacklist does not contain `{args[1]}`")
+                removed, not_exist = await blacklist.remove_words(guild_id, args[1:])
+                if removed:
+                    await ctx.send(f"Removed `{'`, `'.join(removed)}` from blacklist")
+                if not_exist:
+                    await ctx.send(f"Blacklist does not contain `{'`, `'.join(not_exist)}`")
 
         elif args[0].lower() == "clear":
             stat = await blacklist.clear_blacklist(guild_id)
@@ -174,11 +174,11 @@ class Cog(commands.Cog, name='Admin Commands'):
                 await ctx.send(f"Cleared blacklisted words for `{ctx.guild.name}`")
 
         elif args[0].lower() == "show":
-            list = await blacklist.get(guild_id)
-            if not list:
+            wordlist = await blacklist.get(guild_id)
+            if not wordlist:
                 message = "There are no blacklisted words in this server"
             else:
-                message = f"Blacklisted words: `{'`, `'.join(list)}`"
+                message = f"Blacklisted words: `{'`, `'.join(wordlist)}`"
             await ctx.send(message)
 
     @blacklist.error
