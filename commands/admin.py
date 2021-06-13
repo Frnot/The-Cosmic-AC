@@ -4,17 +4,16 @@ import discord
 from discord.ext import commands
 import utils.admin
 import utils.general
-from model import prefix, blacklist
+from model import prefix, blacklist, snitch
 import logging
 log = logging.getLogger(__name__)
 
 restart = False
 
-class Cog(commands.Cog, name='General commands'):
+class Cog(commands.Cog, name='Admin Commands'):
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
-
 
 
 
@@ -35,7 +34,6 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
-
     # Shutdown
     @commands.command()
     @commands.is_owner()
@@ -50,7 +48,6 @@ class Cog(commands.Cog, name='General commands'):
             await ctx.send("You do not have permission to use this command")
         else:
             await ctx.send(f"error: {exception}")
-
 
 
 
@@ -87,7 +84,6 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
-
     # Set status
     @commands.command()
     @commands.is_owner()
@@ -117,7 +113,6 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
-
     # Change per-guild command prefix
     @commands.command()
     @commands.check(utils.admin.is_server_owner)
@@ -138,8 +133,10 @@ class Cog(commands.Cog, name='General commands'):
 
     @prefix.error
     async def prefix_error(self, ctx, exception):
-        await ctx.send(f"error: {exception}")
-
+        if isinstance(exception, commands.NotOwner):
+            await ctx.send("You do not have permission to use this command")
+        else:
+            await ctx.send(f"error: {exception}")
 
 
 
@@ -184,10 +181,40 @@ class Cog(commands.Cog, name='General commands'):
                 message = f"Blacklisted words: `{'`, `'.join(list)}`"
             await ctx.send(message)
 
-
     @blacklist.error
     async def blacklist_error(self, ctx, exception):
-        if isinstance(exception, commands.NotOwner):
-            await ctx.send("You do not have permission to use this command")
+        await ctx.send(f"error: {exception}")
+
+
+
+    # Snitch
+    @commands.command()
+    @commands.check(utils.admin.is_server_owner)
+    async def snitch(self, ctx):
+        stat = await snitch.add_or_update_guild(ctx.guild, ctx.channel)
+        old_channel_id, new_channel_id = stat
+
+        if(old_channel_id == new_channel_id):
+            await ctx.send("I'm already snitching in this channel")
+        elif old_channel_id is None:
+            log.info(f"started snitching on {ctx.guild.name}")
+            await ctx.send(f"Will snitch on `{ctx.guild.name}` in `#{ctx.channel.name}`")
         else:
-            await ctx.send(f"error: {exception}")
+            log.info(f"changed snitch hooked channel from {self.bot.get_channel(old_channel_id)} to {ctx.channel.name}")
+            await ctx.send(f"Moved `{ctx.guild.name}` snitch channel to `#{ctx.channel.name}`")
+
+    @snitch.error
+    async def snitch_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
+
+
+    @commands.command()
+    @commands.check(utils.admin.is_server_owner)
+    async def stopsnitching(self, ctx):
+        snitch.remove_guild(ctx.guild)
+        log.info(f"Removed snitch channel from {ctx.guild.name}")
+        await ctx.send(f"Will no longer snitch on `{ctx.guild.name}`")
+
+    @stopsnitching.error
+    async def stopsnitching_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")

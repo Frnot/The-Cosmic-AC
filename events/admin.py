@@ -4,7 +4,9 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
-class Cog(commands.Cog, name='General commands'):
+
+
+class Cog(commands.Cog, name='Admin Events'):
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
@@ -12,7 +14,7 @@ class Cog(commands.Cog, name='General commands'):
 
 
 
-    # Blacklist
+    ## Blacklist
     @commands.Cog.listener()
     async def on_ready(self):
         log.info("Loading blacklist database into cache")
