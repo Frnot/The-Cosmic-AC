@@ -30,20 +30,21 @@ class Cog(commands.Cog, name='Snitch Events'):
         log.info(f"{invite.inviter.display_name} has created an invite for {invite.guild.name} : {invite.url}")
         await model.snitch.notify(invite.guild, f"{invite.inviter.mention} (`{invite.inviter.display_name}`) has created an invite  : `{invite.url}`")
         #TODO optimize this
-        await self.track_invites(invite.guild)
+        await model.snitch.track_invites(invite.guild)
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite):
         log.info(f"invite {invite.url} for {invite.guild.name} has been deleted")
         await model.snitch.notify(invite.guild, f"invite `{invite.url}` has been deleted")
         #TODO optimize this
-        await self.track_invites(invite.guild)
+        await model.snitch.track_invites(invite.guild)
 
 
+    # TODO: put this logic in model
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        old_invite_map = self.guild_invite_maps.get(member.guild.id)
-        new_invite_map = await self.track_invites(member.guild)
+        old_invite_map = await model.snitch.get_invite_map(member.guild)
+        new_invite_map = await model.snitch.track_invites(member.guild)
         if old_invite_map is not None:
             for invite_id in old_invite_map:
                 if new_invite_map.get(invite_id) is not None and old_invite_map[invite_id].uses != new_invite_map[invite_id].uses:

@@ -50,6 +50,9 @@ async def untrack_invites(guild):
     guild_invite_maps.pop(guild.id)
 
 
+async def get_invite_map(guild):
+    return guild_invite_maps.get(guild.id)
+
 
 async def notify(guild, message):
     channel_id = await hooked_channels.get(guild.id)
