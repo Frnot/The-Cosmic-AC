@@ -7,7 +7,7 @@ import utils.general
 log = logging.getLogger(__name__)
 
 
-class Cog(commands.Cog, name='General commands'):
+class Cog(commands.Cog, name='General Commands'):
     def __init__(self, bot):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
