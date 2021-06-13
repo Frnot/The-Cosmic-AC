@@ -8,39 +8,47 @@ blacklists = db_cache.DBCache("blacklist", "guild_id", "blacklist_set", True)
 
 async def add_words(guild_id, words):
     added = []
+    error = []
+    word_set = await blacklists.get(guild_id)
+    if word_set is None: 
+        log.debug(f"No blacklist found for guild id: {guild_id}")
+        word_set = set()
+
     for word in words:
         word = scrub(word)
-        word_set = await blacklists.get(guild_id)
-        if word_set is None:
-            word_set = set()
+        if word in word_set:
+            error.append(word)
+        else:
+            log.debug(f"Adding word '{word}' to blacklist for guild id: {guild_id}")
+            word_set.add(word)
+            added.append(word)
 
-        log.debug(f"Adding word '{word}' to blacklist for guild id: {guild_id}")
-        word_set.add(word)
+    if added:
         await blacklists.add_or_update(guild_id, word_set)
-        added.append(word)
-
-    return added
+    return (added, error)
 
 
 
 async def remove_words(guild_id, words):
     removed = []
     error = []
-    for word in words:
-        word = scrub(word)
-        word_set = await blacklists.get(guild_id)
-        if word_set is None:
-                log.debug(f"Cannot remove {word} from blacklist for guild id: {guild_id}. Blacklist is empty")
-        else:
+    word_set = await blacklists.get(guild_id)
+    
+    if word_set is None:
+        log.debug(f"Cannot remove word from blacklist for guild id: '{guild_id}'. Blacklist is empty")
+    else:
+        for word in words:
+            word = scrub(word)
             if word in word_set:
                 log.debug(f"Removed word '{word}' from blacklist for guild id: {guild_id}")
                 word_set.remove(word)
-                await blacklists.add_or_update(guild_id, word_set)
                 removed.append(word)
             else:
                 log.debug(f"Word '{word}' does not exist in the blacklist for guild id: {guild_id}")
                 error.append(word)
 
+    if removed:
+        await blacklists.add_or_update(guild_id, word_set)
     return (removed, error)
 
 
