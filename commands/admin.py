@@ -120,7 +120,7 @@ class Cog(commands.Cog, name='General commands'):
 
     # Change per-guild command prefix
     @commands.command()
-    @commands.is_owner()
+    @commands.check(utils.admin.is_server_owner)
     async def prefix(self, ctx, new_prefix=None):
         if new_prefix is None:
             current_prefix = await prefix.get(ctx.guild.id)
@@ -135,6 +135,10 @@ class Cog(commands.Cog, name='General commands'):
         
         new_prefix = await prefix.get(ctx.guild.id)
         await ctx.send(f"Command prefix for {ctx.guild.name} is now `{new_prefix}`")
+
+    @prefix.error
+    async def prefix_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
 
 
 
