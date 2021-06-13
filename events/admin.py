@@ -47,10 +47,12 @@ class Cog(commands.Cog, name='Admin Events'):
             # perform a shallow copy on word_set to avoid race condition
             word_set = set(await blacklist.get(message.guild.id))
             
-            test_message = message.content.lower()
+            # lower() and split() is expensive
+            # maybe do lower() on a per-word basis to decrease best-case runtime
+            test_message_array = message.content.lower().split()
             if word_set is not None:
-                for word in word_set:
-                    if word in test_message:
+                for word in test_message_array:
+                    if word in word_set:
                         await message.delete()
                         log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
 
