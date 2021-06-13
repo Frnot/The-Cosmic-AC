@@ -153,8 +153,11 @@ class Cog(commands.Cog, name='Admin Commands'):
             if len(args) < 2:
                 return #error
             else:
-                words = await blacklist.add_words(guild_id, args[1:])
-                await ctx.send(f"Added `{'`, `'.join(words)}` to blacklist")
+                added, existing = await blacklist.add_words(guild_id, args[1:])
+                if added:
+                    await ctx.send(f"Added `{'`, `'.join(added)}` to blacklist")
+                if existing:
+                    await ctx.send(f"`{'`, `'.join(existing)}` already in blacklist")
 
         elif args[0].lower() == "remove":
             if len(args) < 2:

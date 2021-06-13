@@ -25,7 +25,7 @@ class DBCache:
                 log.debug(f"Changing {key} in {self.table_name}")
             self.cache_dict[key] = value
 
-        await self.flush_cache_item_to_db(key)
+        await self.flush_cache_item(key)
 
 
     async def remove(self, key):
@@ -40,6 +40,7 @@ class DBCache:
 
     async def get(self, key):
         if self.cache_dict.get(key) is None:
+            log.debug(f"Key '{key}' not found in cache. Searching DB")
             cache_item = await db.select(self.value_name, self.table_name, self.key_name, key)
 
             if cache_item is None:
@@ -59,7 +60,7 @@ class DBCache:
 
 
 
-    async def flush_cache_item_to_db(self, key):
+    async def flush_cache_item(self, key):
         db_item = await db.select(self.value_name, self.table_name, self.key_name, key)
         cache_item = self.cache_dict.get(key)
         if self.serialize: cache_item = pickle.dumps(cache_item)
