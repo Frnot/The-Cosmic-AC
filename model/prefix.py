@@ -10,9 +10,8 @@ default_prefix = "./"
 async def get(guild_id):
     prefix = await prefixes.get(guild_id)
     if prefix is None:
-        return default_prefix
-    else:
-        return prefix
+        await add_or_update(guild_id, default_prefix)
+    return prefix
 
 
 async def add_or_update(guild_id, new_prefix):

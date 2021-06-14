@@ -14,7 +14,7 @@ init_tables = {
     "blacklist":"CREATE TABLE IF NOT EXISTS 'blacklist' (guild_id INT PRIMARY KEY, blacklist_set TEXT);",
     "voting":"CREATE TABLE IF NOT EXISTS 'voting' (guild_id INT PRIMARY KEY, voting_role_id INT);",
 }
-
+# TODO: handle changing the table definitions. avoid "UNIQUE constraint failed errors"
 
 ### "Constructor"
 def load():
