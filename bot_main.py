@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 version = metadata.version('CosmicAC')
 
 
-#@bot.event
-#async def on_ready():
-#    log.info(f"Logged on as {bot.user}!\nReady")
-
 
 
 def run_bot(bot_token):
@@ -39,7 +35,7 @@ def run_bot(bot_token):
 
     # Create bot
     global bot
-    bot = dcommands.Bot(command_prefix=guild_prefix, intents=discord.Intents.all(), \
+    bot = Bot(command_prefix=guild_prefix, intents=discord.Intents.all(), \
                         activity=discord.Activity(name=f"v{version}", type=discord.ActivityType.playing))
 
     # Load modules
@@ -50,7 +46,6 @@ def run_bot(bot_token):
 
     bot.add_cog(events.admin.Cog(bot))
     bot.add_cog(events.snitch.Cog(bot))
-    # TODO:: register event for logged on as bot.user
 
     # Run bot
     bot.run(bot_token)
@@ -62,3 +57,8 @@ def run_bot(bot_token):
 async def guild_prefix(bot, message):
     prefix_return = await prefix.get(message.guild.id)
     return dcommands.when_mentioned_or(prefix_return)(bot, message)
+
+
+class Bot(dcommands.Bot):
+    async def on_ready(self):
+        log.info(f"Logged on as {bot.user}!\nReady.")
