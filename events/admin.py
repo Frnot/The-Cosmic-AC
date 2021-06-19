@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from model import blacklist
 import time
@@ -53,8 +54,13 @@ class Cog(commands.Cog, name='Admin Events'):
             if word_set is not None:
                 for word in test_message_array:
                     if word in word_set:
-                        await message.delete()
-                        log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
+                        try:
+                            await message.delete()
+                            log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
+                        except discord.NotFound:
+                            log.info(f"Message does not exist. It has already been removed")
+                        return
+                        
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
