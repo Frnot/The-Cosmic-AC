@@ -141,52 +141,49 @@ class Cog(commands.Cog, name='Admin Commands'):
 
 
     # Blacklist words
-    @commands.command()
+    @commands.group()
     @commands.check(utils.admin.is_server_owner)
-    async def blacklist(self, ctx, *args):
-        guild_id = ctx.guild.id
+    async def blacklist(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Invalid blacklist command')
 
-        if len(args) < 1:
-            return #error
+    @blacklist.command()
+    async def add(self, ctx, *args):
+        added, existing = await blacklist.add_words(ctx.guild.id, args[1:])
+        if added:
+            await ctx.send(f"Added `{'`, `'.join(added)}` to blacklist")
+        if existing:
+            await ctx.send(f"`{'`, `'.join(existing)}` already in blacklist")
 
-        if args[0].lower() == "add":
-            if len(args) < 2:
-                return #error
-            else:
-                added, existing = await blacklist.add_words(guild_id, args[1:])
-                if added:
-                    await ctx.send(f"Added `{'`, `'.join(added)}` to blacklist")
-                if existing:
-                    await ctx.send(f"`{'`, `'.join(existing)}` already in blacklist")
+    @blacklist.command()
+    async def remove(self, ctx, *args):
+        removed, not_exist = await blacklist.remove_words(ctx.guild.id, args[1:])
+        if removed:
+            await ctx.send(f"Removed `{'`, `'.join(removed)}` from blacklist")
+        if not_exist:
+            await ctx.send(f"Blacklist does not contain `{'`, `'.join(not_exist)}`")
 
-        elif args[0].lower() == "remove":
-            if len(args) < 2:
-                return #error
-            else:
-                removed, not_exist = await blacklist.remove_words(guild_id, args[1:])
-                if removed:
-                    await ctx.send(f"Removed `{'`, `'.join(removed)}` from blacklist")
-                if not_exist:
-                    await ctx.send(f"Blacklist does not contain `{'`, `'.join(not_exist)}`")
+    @blacklist.command()
+    async def clear(self, ctx):
+        stat = await blacklist.clear_blacklist(ctx.guild.id)
+        if stat is None:
+            await ctx.send(f"There are no blacklisted words in this server")
+        else:
+            await ctx.send(f"Cleared blacklisted words for `{ctx.guild.name}`")
 
-        elif args[0].lower() == "clear":
-            stat = await blacklist.clear_blacklist(guild_id)
-            if stat is None:
-                await ctx.send(f"There are no blacklisted words in this server")
-            else:
-                await ctx.send(f"Cleared blacklisted words for `{ctx.guild.name}`")
-
-        elif args[0].lower() == "show":
-            wordlist = await blacklist.get(guild_id)
-            if not wordlist:
-                message = "There are no blacklisted words in this server"
-            else:
-                message = f"Blacklisted words: `{'`, `'.join(wordlist)}`"
-            await ctx.send(message)
+    @blacklist.command()
+    async def show(self, ctx):
+        wordlist = await blacklist.get(ctx.guild.id)
+        if not wordlist:
+            message = "There are no blacklisted words in this server"
+        else:
+            message = f"Blacklisted words: `{'`, `'.join(wordlist)}`"
+        await ctx.send(message)
 
     @blacklist.error
     async def blacklist_error(self, ctx, exception):
         await ctx.send(f"error: {exception}")
+
 
 
 

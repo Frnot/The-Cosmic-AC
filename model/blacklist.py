@@ -61,8 +61,10 @@ async def get(guild_id):
 async def clear_blacklist(guild_id):
     word_set = await blacklists.get(guild_id)
     if word_set is None:
+        log.debug(f"Cannot clear blacklist for guild id: {guild_id}. Blacklist is empty")
         return False
     else:
+        log.debug(f"Clearing blacklist for guild id: {guild_id}")
         word_set.clear()
         await blacklists.add_or_update(guild_id, word_set)
         return True
