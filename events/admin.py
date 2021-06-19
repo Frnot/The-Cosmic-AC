@@ -47,20 +47,19 @@ class Cog(commands.Cog, name='Admin Events'):
         if not message.author.bot:
             # perform a shallow copy on word_set to avoid race condition
             word_set = set(await blacklist.get(message.guild.id))
-            
-            # lower() and split() is expensive
-            # maybe do lower() on a per-word basis to decrease best-case runtime
-            test_message_array = message.content.lower().split()
+
+            test_message_array1 = message.content.lower().split()
             if word_set is not None:
-                for word in test_message_array:
+                for word in test_message_array1:
                     if word in word_set:
+                        log.info(f"Removing message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contains blacklisted word: \"{word}\"")
                         try:
                             await message.delete()
-                            log.info(f"Removed message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contained blacklisted word: \"{word}\"")
+                            log.debug(f"Removed message")
                         except discord.NotFound:
-                            log.info(f"Message does not exist. It has already been removed")
-                        return
-                        
+                            log.debug(f"Message does not exist. It has already been removed")
+                        break
+
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
