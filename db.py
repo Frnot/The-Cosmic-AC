@@ -111,9 +111,8 @@ async def select_all(table):
 
 
 
-# TODO: make the (?, ?) parameter variable length based on data rows
 async def insert(table, data):
-    sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES (?, ?)"
+    sql = f"INSERT INTO {table} ({', '.join(str(row[0]) for row in data)}) VALUES ({', '.join('?'*len(data))})"
     payload = [row[1] for row in data]
 
     log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
@@ -125,9 +124,8 @@ async def insert(table, data):
 
 
 
-# TODO: make the (?, ?) parameter variable length based on data rows
 async def update(table, data):
-    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = (?, ?)"
+    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join('?'*len(data))})"
     payload = [row[1] for row in data]
 
     log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
