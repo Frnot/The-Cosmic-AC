@@ -149,7 +149,7 @@ class Cog(commands.Cog, name='Admin Commands'):
 
     @blacklist.command()
     async def add(self, ctx, *args):
-        added, existing = await blacklist.add_words(ctx.guild.id, args[1:])
+        added, existing = await blacklist.add_words(ctx.guild.id, args)
         if added:
             await ctx.send(f"Added `{'`, `'.join(added)}` to blacklist")
         if existing:
@@ -157,7 +157,7 @@ class Cog(commands.Cog, name='Admin Commands'):
 
     @blacklist.command()
     async def remove(self, ctx, *args):
-        removed, not_exist = await blacklist.remove_words(ctx.guild.id, args[1:])
+        removed, not_exist = await blacklist.remove_words(ctx.guild.id, args)
         if removed:
             await ctx.send(f"Removed `{'`, `'.join(removed)}` from blacklist")
         if not_exist:
