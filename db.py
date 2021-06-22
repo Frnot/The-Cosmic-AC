@@ -153,8 +153,9 @@ async def insert(table, data):
 
 
 async def update(table, data):
-    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join('?'*len(data))})"
+    sql = f"UPDATE {table} SET ({', '.join(str(row[0]) for row in data)}) = ({', '.join('?'*len(data))}) WHERE {data[0][0]} = ?"
     payload = [row[1] for row in data]
+    payload.append(data[0][1])
 
     log.debug(f"Sending query: '{sql}, ({', '.join(str(word) for word in payload)})' to database")
     try:
