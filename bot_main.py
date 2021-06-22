@@ -27,11 +27,9 @@ version = metadata.version('CosmicAC')
 def run_bot(bot_token):
     log.info(f"Running version v{version}")
 
-    
     # Load Database
     log.info("Loading database")
     db.load()
-
 
     # Create bot
     global bot
