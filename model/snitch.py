@@ -29,12 +29,12 @@ async def load_invite_maps(bot):
 
 
 async def track_invites(guild):
+    if await hooked_channels.get(guild.id) is None:
+        return
+    
     if not guild.get_member(bot_main.bot.user.id).guild_permissions.manage_guild:
         log.error(f"Missing permission 'manage_guild' in guild '{guild.name}. Cannot track invites.")
         return None
-    
-    if await hooked_channels.get(guild.id) is None:
-        return
     
     log.debug(f"Tracking invites for guild: {guild.name}")
     invite_set = await guild.invites()
