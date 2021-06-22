@@ -82,7 +82,7 @@ async def select(column, table, key, search_value):
         cursor = await conn.execute(sql)
     except Exception as e:
         log.error(f"SQL query 'select' failed: {e}")
-        return None
+        raise e
 
     result = await cursor.fetchone()
     log.debug(f"Query result: {result}")
@@ -102,12 +102,39 @@ async def select_all(table):
         cursor = await conn.execute(sql)
     except Exception as e:
         log.error(f"SQL query 'select' failed: {e}")
-        return None
+        raise e
     
     result = await cursor.fetchall()
     log.debug(f"Query result: {result}")
 
     return result
+
+
+# Will always send SQL update. a little inefficient
+async def upsert(table, data):
+    columns = ', '.join(str(row[0]) for row in data)
+    param = ', '.join('?'*len(data))
+    payload = [row[1] for row in data]
+    payload_string = ', '.join(str(word) for word in payload)
+
+    sql1 = f"INSERT OR IGNORE INTO {table} ({columns}) VALUES ({param})"
+    sql2 = f"UPDATE {table} SET ({columns}) = ({param})"
+
+    log.debug(f"Sending query: '{sql1}, ({payload_string})' to database")
+    try:
+        await conn.execute(sql1, payload)
+        await conn.commit()
+    except Exception as e:
+        log.error(f"SQL query 'insert' failed: {e}")
+        raise e
+
+    log.debug(f"Sending query: '{sql2}, ({payload_string})' to database")
+    try:
+        await conn.execute(sql2, payload)
+        await conn.commit()
+    except Exception as e:
+        log.error(f"SQL query 'update' failed: {e}")
+        raise e
 
 
 
@@ -121,6 +148,7 @@ async def insert(table, data):
         await conn.commit()
     except Exception as e:
         log.error(f"SQL query 'insert' failed: {e}")
+        raise e
 
 
 
@@ -134,6 +162,7 @@ async def update(table, data):
         await conn.commit()
     except Exception as e:
         log.error(f"SQL query 'update' failed: {e}")
+        raise e
 
 
 
@@ -145,3 +174,4 @@ async def delete(table, data):
         await conn.commit()
     except Exception as e:
         log.error(f"SQL query 'delete' failed: {e}")
+        raise e
