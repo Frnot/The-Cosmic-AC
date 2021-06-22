@@ -90,7 +90,7 @@ class DBCache:
                     await db.insert(self.table_name, sql_data)
                 else:
                     await db.update(self.table_name, sql_data)
-            except Exception as e:
+            except:
                 log.error(f"Cannot write cache to DB. cache operations will not persist")
 
 
