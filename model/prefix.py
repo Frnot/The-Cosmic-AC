@@ -11,6 +11,7 @@ async def get(guild_id):
     prefix = await prefixes.get(guild_id)
     if prefix is None:
         await add_or_update(guild_id, default_prefix)
+        prefix = await prefixes.get(guild_id)
     return prefix
 
 
