@@ -70,3 +70,14 @@ class Cog(commands.Cog, name='General Commands'):
             #await ctx.send("You do not have permission to use this command")
         #else:
         await ctx.send(f"error: {exception}")
+
+    @commands.command()
+    async def spam(self, ctx, number):
+        i = 1
+        while i <= int(number):
+            await ctx.send(i)
+            i += 1
+
+    @spam.error
+    async def spam_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
