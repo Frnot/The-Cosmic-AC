@@ -44,7 +44,7 @@ class DBCache:
 
     async def get(self, key):
         if self.cache_dict.get(key) is None:
-            log.debug(f"Key '{key}' not found in cache. Searching DB")
+            log.debug(f"Key '{key}' not found in cache for '{self.table_name}'. Searching DB")
             
             try:
                 cache_item = await db.select(self.value_name, self.table_name, self.key_name, key)

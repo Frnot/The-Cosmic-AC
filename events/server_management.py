@@ -1,6 +1,8 @@
 from discord.ext import commands
+from model import autoassign_role
 import logging
 log = logging.getLogger(__name__)
+
 
 
 class Cog(commands.Cog, name='Server Management'):
@@ -8,25 +10,20 @@ class Cog(commands.Cog, name='Server Management'):
         self.bot = bot
         log.info(f"Registered Cog: {self.qualified_name}")
 
-    
-    ## Give every new member a role
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        for guild in self.bot.guilds:
+            log.debug(f"Syncing autoassign roles for users in guild '{guild.name}'")
+            await autoassign_role.sync(guild)
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if not member.bot:
             guild = member.guild
-            newrole = guild.get_role(833019117992542248)
+            role_id = autoassign_role.get(guild.id)
+            newrole = guild.get_role(role_id)
             if newrole is None:
                 return
             await member.add_roles(newrole)
             log.info(f"{member.display_name} has been assigned the role `{newrole.name}`.")
-
-    @commands.command()
-    async def roleup(self, ctx):
-        newrole = ctx.guild.get_role(833019117992542248)
-        if newrole is None:
-            return
-        for member in ctx.guild.members:
-            if not member.bot and newrole not in member.roles:
-                await member.add_roles(newrole)
-                log.info(f"{member.display_name} has been assigned the role `{newrole.name}`.")
-        log.info("command: roleup finished.")
