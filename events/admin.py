@@ -53,7 +53,7 @@ class Cog(commands.Cog, name='Admin Events'):
             test_message = message.content.replace(" ", "").lower()
 
             for word in word_set:
-                l_dist = 3
+                l_dist = 1
                 word_length = len(word)
                 if word_length <= l_dist + 1:
                     l_dist = word_length - 1
