@@ -68,6 +68,17 @@ class Cog(commands.Cog, name='Snitch Events'):
         ban = await guild.fetch_ban(user)
         log.info(f"{user.display_name} has been banned from {guild.name} reason: {ban.reason}")
         await model.snitch.notify(guild, f"{user.mention} (`{user.display_name}`) has been banned. reason: `{ban.reason}`")
+        
+        # TODO: check for this on startup too
+        invite_map = await model.snitch.get_invite_map(guild)
+        if invite_map is not None:
+            log.debug(f"Deleting invites from '{user.display_name}' in guild '{guild.name}'")
+            for invite in invite_map.values():
+                if invite.inviter == user:
+                    await invite.delete(reason="Invite creator has been banned")
+                    log.info(f"{user.display_name}'s invite {invite.url} for {guild.name} has been deleted")
+        else:
+            log.debug(f"Cannot delete banned member's invites. Invites are not being tracked for guild '{guild.name}'")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
