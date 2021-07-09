@@ -13,8 +13,7 @@ from model import prefix
 # Import modules
 import db
 import commands.admin, commands.general
-import events.admin, events.snitch
-import server_management
+import events.admin, events.snitch, events.server_management
 import voting
 
 log = logging.getLogger(__name__)
@@ -39,11 +38,11 @@ def run_bot(bot_token):
     # Load modules
     bot.add_cog(commands.admin.Cog(bot))
     bot.add_cog(commands.general.Cog(bot))
-    bot.add_cog(server_management.Cog(bot))
     bot.add_cog(voting.Cog(bot))
 
     bot.add_cog(events.admin.Cog(bot))
     bot.add_cog(events.snitch.Cog(bot))
+    bot.add_cog(events.server_management.Cog(bot))
 
     # Run bot
     bot.run(bot_token)

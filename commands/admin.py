@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import utils.admin
 import utils.general
-from model import prefix, blacklist, snitch
+from model import prefix, blacklist, snitch, autoassign_role
 import logging
 log = logging.getLogger(__name__)
 
@@ -218,3 +218,53 @@ class Cog(commands.Cog, name='Admin Commands'):
     @stopsnitching.error
     async def stopsnitching_error(self, ctx, exception):
         await ctx.send(f"error: {exception}")
+
+
+
+
+    # Autoassign roles
+    @commands.group()
+    @commands.check(utils.admin.can_manage_server)
+    async def autoassign(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Invalid blacklist command')
+
+    @autoassign.command()
+    async def add(self, ctx, role: discord.Role):
+        stat = await autoassign_role.add_or_update_role(ctx.guild.id, role.id)
+        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
+        if stat:
+            await ctx.send(f"`@{role.name}` will be automatically assigned to new members of `{ctx.guild.name}`")
+        else:
+            await ctx.send(f"`@{role.name}` is already the autoassign role for `{ctx.guild.name}`")
+
+    @autoassign.command()
+    async def remove(self, ctx):
+        stat = await autoassign_role.remove_role(ctx.guild.id)
+        if stat:
+            await ctx.send(f"Removed autoassign role from `{ctx.guild.name}`")
+        else:
+            await ctx.send(f"No autoassign role exists for guild `{ctx.guild.name}`. Cannot remove")
+
+    @autoassign.command()
+    async def show(self, ctx):
+        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
+        if role is not None:
+            await ctx.send(f"The autoassign role for `{ctx.guild.name}` is `@{role.name}`")
+        else:
+            await ctx.send(f"There is no autoassign role set for `{ctx.guild.name}`")
+
+    @autoassign.command()
+    async def sync(self, ctx):
+        stat = await autoassign_role.sync(ctx.guild)
+        if stat is None:
+            await ctx.message.add_reaction("✅")
+        elif stat is False:
+            await ctx.send("There is no autoassign role set for this guild")
+        else:
+            await ctx.send(f"Could not assign role to users: `{'`, `'.join(stat)}`")
+
+    @autoassign.error
+    async def autoassign_error(ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send("You must have the 'Manage Server' permission to use this command")
