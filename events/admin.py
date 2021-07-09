@@ -5,6 +5,8 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
+from fuzzysearch import find_near_matches
+
 
 
 class Cog(commands.Cog, name='Admin Events'):
@@ -48,18 +50,27 @@ class Cog(commands.Cog, name='Admin Events'):
             # perform a shallow copy on word_set to avoid race condition
             word_set = set(await blacklist.get(message.guild.id))
 
-            test_message_array1 = message.content.lower().split()
-            if word_set is not None:
-                for word in test_message_array1:
-                    if word in word_set:
-                        log.info(f"Removing message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - contains blacklisted word: \"{word}\"")
-                        try:
-                            await message.delete()
-                            log.debug(f"Removed message")
-                        except discord.NotFound:
-                            log.debug(f"Message does not exist. It has already been removed")
-                        break
+            test_message = message.content.replace(" ", "").lower()
 
+            for word in word_set:
+                l_dist = 3
+                word_length = len(word)
+                if word_length <= l_dist + 1:
+                    l_dist = word_length - 1
+                    if l_dist < 0: l_dist = 0
+                
+                match = find_near_matches(word, test_message, max_l_dist=l_dist)
+
+                if match:
+                    word = match[0].matched
+                    distance = match[0].dist
+                    log.info(f"Removing message \"{message.content}\" from {message.author.display_name} in #{message.channel.name}@{message.guild.name} - matched blacklisted word: \"{word}\" with distance of {distance}")
+                    try:
+                        await message.delete()
+                        log.debug(f"Removed message")
+                    except discord.NotFound:
+                        log.debug(f"Message does not exist. It has already been removed")
+                    break
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):

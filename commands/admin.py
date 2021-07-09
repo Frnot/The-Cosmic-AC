@@ -140,8 +140,101 @@ class Cog(commands.Cog, name='Admin Commands'):
 
 
 
+    # Snitch
+    @commands.command()
+    @commands.check(utils.admin.is_server_owner)
+    async def snitch(self, ctx):
+        stat = await snitch.add_or_update_guild(ctx.guild, ctx.channel)
+        old_channel_id, new_channel_id = stat
+
+        if(old_channel_id == new_channel_id):
+            await ctx.send("I'm already snitching in this channel")
+        elif old_channel_id is None:
+            log.info(f"started snitching on '{ctx.guild.name}'")
+            await ctx.send(f"Will snitch on `{ctx.guild.name}` in `#{ctx.channel.name}`")
+        else:
+            log.info(f"changed snitch hooked channel in '{ctx.guild.name}' from '{self.bot.get_channel(old_channel_id)}' to '{ctx.channel.name}'")
+            await ctx.send(f"Moved `{ctx.guild.name}` snitch channel to `#{ctx.channel.name}`")
+
+    @snitch.error
+    async def snitch_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
+
+
+    @commands.command()
+    @commands.check(utils.admin.is_server_owner)
+    async def stopsnitching(self, ctx):
+        await snitch.remove_guild(ctx.guild)
+        log.info(f"Removed snitch channel from '{ctx.guild.name}'")
+        await ctx.send(f"Will no longer snitch on `{ctx.guild.name}`")
+
+    @stopsnitching.error
+    async def stopsnitching_error(self, ctx, exception):
+        await ctx.send(f"error: {exception}")
+
+
+
+
+    # Autoassign roles
+    @commands.group(name="autoassign")
+    @commands.check(utils.admin.can_manage_server)
+    async def autoassign(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Invalid autoassign command')
+
+    @autoassign.command()
+    async def add(self, ctx, role: discord.Role):
+        stat = await autoassign_role.add_or_update_role(ctx.guild.id, role.id)
+        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
+        if stat:
+            await ctx.send(f"`@{role.name}` will be automatically assigned to new members of `{ctx.guild.name}`")
+        else:
+            await ctx.send(f"`@{role.name}` is already the autoassign role for `{ctx.guild.name}`")
+
+    @autoassign.command()
+    async def remove(self, ctx):
+        stat = await autoassign_role.remove_role(ctx.guild.id)
+        if stat:
+            await ctx.send(f"Removed autoassign role from `{ctx.guild.name}`")
+        else:
+            await ctx.send(f"No autoassign role exists for guild `{ctx.guild.name}`. Cannot remove")
+
+    @autoassign.command()
+    async def show(self, ctx):
+        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
+        if role is not None:
+            await ctx.send(f"The autoassign role for `{ctx.guild.name}` is `@{role.name}`")
+        else:
+            await ctx.send(f"There is no autoassign role set for `{ctx.guild.name}`")
+
+    @autoassign.command()
+    async def sync(self, ctx):
+        stat = await autoassign_role.sync(ctx.guild)
+        if stat is None:
+            await ctx.message.add_reaction("✅")
+        elif stat is False:
+            await ctx.send("There is no autoassign role set for this guild")
+        else:
+            await ctx.send(f"Could not assign role to users: `{'`, `'.join(stat)}`")
+
+    @autoassign.error
+    async def autoassign_error(self, ctx, exception):
+        if isinstance(exception, commands.CheckFailure):
+            await ctx.send("You must have the 'Manage Server' permission to use this command")
+        await ctx.send(f"error: {exception}")
+
+
+
+
+# I think I've been using cogs wrong this whole time
+class Blacklist_cog(commands.Cog, name='Blacklist commands'):
+    def __init__(self, bot):
+        self.bot = bot
+        log.info(f"Registered Cog: {self.qualified_name}")
+
+
     # Blacklist words
-    @commands.group()
+    @commands.group(name="blacklist")
     @commands.check(utils.admin.is_server_owner)
     async def blacklist(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -183,88 +276,3 @@ class Cog(commands.Cog, name='Admin Commands'):
     @blacklist.error
     async def blacklist_error(self, ctx, exception):
         await ctx.send(f"error: {exception}")
-
-
-
-
-    # Snitch
-    @commands.command()
-    @commands.check(utils.admin.is_server_owner)
-    async def snitch(self, ctx):
-        stat = await snitch.add_or_update_guild(ctx.guild, ctx.channel)
-        old_channel_id, new_channel_id = stat
-
-        if(old_channel_id == new_channel_id):
-            await ctx.send("I'm already snitching in this channel")
-        elif old_channel_id is None:
-            log.info(f"started snitching on '{ctx.guild.name}'")
-            await ctx.send(f"Will snitch on `{ctx.guild.name}` in `#{ctx.channel.name}`")
-        else:
-            log.info(f"changed snitch hooked channel in '{ctx.guild.name}' from '{self.bot.get_channel(old_channel_id)}' to '{ctx.channel.name}'")
-            await ctx.send(f"Moved `{ctx.guild.name}` snitch channel to `#{ctx.channel.name}`")
-
-    @snitch.error
-    async def snitch_error(self, ctx, exception):
-        await ctx.send(f"error: {exception}")
-
-
-    @commands.command()
-    @commands.check(utils.admin.is_server_owner)
-    async def stopsnitching(self, ctx):
-        await snitch.remove_guild(ctx.guild)
-        log.info(f"Removed snitch channel from '{ctx.guild.name}'")
-        await ctx.send(f"Will no longer snitch on `{ctx.guild.name}`")
-
-    @stopsnitching.error
-    async def stopsnitching_error(self, ctx, exception):
-        await ctx.send(f"error: {exception}")
-
-
-
-
-    # Autoassign roles
-    @commands.group()
-    @commands.check(utils.admin.can_manage_server)
-    async def autoassign(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send('Invalid blacklist command')
-
-    @autoassign.command()
-    async def add(self, ctx, role: discord.Role):
-        stat = await autoassign_role.add_or_update_role(ctx.guild.id, role.id)
-        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
-        if stat:
-            await ctx.send(f"`@{role.name}` will be automatically assigned to new members of `{ctx.guild.name}`")
-        else:
-            await ctx.send(f"`@{role.name}` is already the autoassign role for `{ctx.guild.name}`")
-
-    @autoassign.command()
-    async def remove(self, ctx):
-        stat = await autoassign_role.remove_role(ctx.guild.id)
-        if stat:
-            await ctx.send(f"Removed autoassign role from `{ctx.guild.name}`")
-        else:
-            await ctx.send(f"No autoassign role exists for guild `{ctx.guild.name}`. Cannot remove")
-
-    @autoassign.command()
-    async def show(self, ctx):
-        role = ctx.guild.get_role(await autoassign_role.get(ctx.guild.id))
-        if role is not None:
-            await ctx.send(f"The autoassign role for `{ctx.guild.name}` is `@{role.name}`")
-        else:
-            await ctx.send(f"There is no autoassign role set for `{ctx.guild.name}`")
-
-    @autoassign.command()
-    async def sync(self, ctx):
-        stat = await autoassign_role.sync(ctx.guild)
-        if stat is None:
-            await ctx.message.add_reaction("✅")
-        elif stat is False:
-            await ctx.send("There is no autoassign role set for this guild")
-        else:
-            await ctx.send(f"Could not assign role to users: `{'`, `'.join(stat)}`")
-
-    @autoassign.error
-    async def autoassign_error(ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            await ctx.send("You must have the 'Manage Server' permission to use this command")
