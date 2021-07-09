@@ -37,6 +37,7 @@ def run_bot(bot_token):
 
     # Load modules
     bot.add_cog(commands.admin.Cog(bot))
+    bot.add_cog(commands.admin.Blacklist_cog(bot))
     bot.add_cog(commands.general.Cog(bot))
     bot.add_cog(voting.Cog(bot))
 
