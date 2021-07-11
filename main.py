@@ -1,7 +1,7 @@
 import os
 import sys
 from dotenv import load_dotenv
-import logger
+from utils import logger
 import logging
 import bot_main
 from commands import admin
