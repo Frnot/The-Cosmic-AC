@@ -1,31 +1,35 @@
 import discord
 from discord.ext import commands
-import utils.admin
-import utils.rng
-import logging
+import asyncio
 import db
 import math
-import asyncio
+import utils.admin
+import utils.rng
+import utils.general
+import logging
 log = logging.getLogger(__name__)
 
 ### TODO: make this bitch thread/async safe
 ### TODO: make default role and @everyone role seperate
+### TODO: use db cache
+
+
 
 class Cog(commands.Cog, name='Voting'):
     def __init__(self, bot):
         self.bot = bot
+        self.votes_in_progress = {}
         log.info(f"Registered Cog: {self.qualified_name}")
 
-    # class vars
-    votes_in_progress = {}
-    
 
-    ### SETUP
+
+
+    ##### Commands #####
 
     @commands.command()
     @commands.check(utils.admin.is_server_owner)
     async def voterrole(self, ctx, *, new_role: discord.Role):
-        old_role = await get_voter_role(ctx.guild)
+        old_role = await self.get_role(ctx.guild)
         
         sql_data = [["voting_role_id", new_role.id], ["guild_id", ctx.guild.id]]
 
@@ -35,17 +39,17 @@ class Cog(commands.Cog, name='Voting'):
             sql_data = ["guild_id", ctx.guild.id]
             await db.delete("voting", sql_data)
             log.info(f"Removed voter role from `{ctx.guild.name}`")
-            new_role = await get_voter_role(ctx.guild)
+            new_role = await self.get_role(ctx.guild)
             message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{new_role.name}` can now vote.")
         elif old_role == ctx.guild.default_role:
             await db.insert("voting", sql_data)
-            new_role = await get_voter_role(ctx.guild)
+            new_role = await self.get_role(ctx.guild)
             msg = f"Added voting role: `{new_role.name}` in `{ctx.guild.name}`"
             log.info(msg)
             message = await ctx.send(msg)
         else:
             await db.update("voting", sql_data)
-            new_role = await get_voter_role(ctx.guild)
+            new_role = await self.get_role(ctx.guild)
             msg = f"Changed voting role from `{old_role.name}` to `{new_role.name}`"
             log.info(msg)
             message = await ctx.send(msg)
@@ -57,22 +61,19 @@ class Cog(commands.Cog, name='Voting'):
         sql_data = ["guild_id", ctx.guild.id]
         await db.delete("voting", sql_data)
         log.info(f"Removed voter role from `{ctx.guild.name}`")
-        new_role = await get_voter_role(ctx.guild)
+        new_role = await self.get_role(ctx.guild)
         message = await ctx.send(f"Removed voter role from `{ctx.guild.name}`\n`{new_role.name}` can now vote.")
 
 
 
-    ### VOTING
-
-    async def can_vote(ctx):
-        return await get_voter_role(ctx.guild) in ctx.author.roles or ctx.author == ctx.guild.owner
 
     @commands.command()
-    @commands.check(can_vote)
     async def votekick(self, ctx, *, member: discord.Member):
         # TODO check that bot has permission to kick the target member
+        if not await self.can_vote(ctx):
+            return
         
-        vote = await Vote.create(ctx, member)
+        vote = await Vote.create(ctx, self, member)
         await vote.message.pin()
 
         # wait some time before ending
@@ -84,7 +85,10 @@ class Cog(commands.Cog, name='Voting'):
     async def status_error(self, ctx, exception):
         await ctx.send(f"error: {exception}")
 
-    
+
+
+
+    ##### Events #####
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -107,21 +111,28 @@ class Cog(commands.Cog, name='Voting'):
         elif reaction.emoji == "❌":
             await vote.voteno(user)
 
-### UTILS
 
-async def get_voter_role(guild):
-    role_id = await db.select("voting_role_id", "voting", "guild_id", guild.id)
-    log.debug(f"received voting_role_id: {role_id} from sql query where guild_id = {guild.id}")
-    if role_id is not None:
-        return guild.get_role(role_id)
-    else:
-        return guild.default_role
+    
+
+    ##### Model #####
+
+    async def get_voter_role(self, guild):
+        role_id = await db.select("voting_role_id", "voting", "guild_id", guild.id)
+        log.debug(f"received voting_role_id: {role_id} from sql query where guild_id = {guild.id}")
+        if role_id is not None:
+            return guild.get_role(role_id)
+        else:
+            return guild.default_role
+
+    async def can_vote(self, ctx):
+        return await self.get_voter_role(ctx.guild) in ctx.author.roles or ctx.author == ctx.guild.owner
 
 
 
 
 class Vote:
-    def __init__(self, message, voters, embed, votes_needed, target, ctx):
+    def __init__(self, cog, message, voters, embed, votes_needed, target, ctx):
+        self.cog = cog
         self.message = message
         self.voters = voters
         self.embed = embed
@@ -133,9 +144,9 @@ class Vote:
         self.ctx = ctx
         
 
-    @classmethod
-    async def create(self, ctx, member):
-        voter_role = await get_voter_role(ctx.guild)
+    @classmethod # Constructor
+    async def create(self, ctx, cog, member):
+        voter_role = await cog.get_voter_role(ctx.guild)
         voters = set([voter for voter in voter_role.members if voter.status != discord.Status.offline and not voter.bot])
         if ctx.guild.owner not in voters:
             voters.add(ctx.guild.owner)
@@ -157,8 +168,8 @@ class Vote:
         await message.add_reaction("❌")
 
         # Construc object, add it to list
-        vote = Vote(message, voters, embed, votes_needed, member, ctx)
-        Cog.votes_in_progress.update({message : vote})
+        vote = Vote(cog, message, voters, embed, votes_needed, member, ctx)
+        cog.votes_in_progress.update({message : vote})
         return vote
 
 
@@ -217,7 +228,7 @@ class Vote:
         await self.message.unpin()
         await self.message.clear_reactions()
         self.completed = True
-        Cog.votes_in_progress.pop(self.message)
+        self.cog.votes_in_progress.pop(self.message)
 
 
     async def update(self):

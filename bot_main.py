@@ -1,4 +1,3 @@
-import os
 import sys
 import logging
 import discord
@@ -8,13 +7,12 @@ if sys.version_info >= (3, 8):
     from importlib import metadata
 else:
     import importlib_metadata as metadata
-from model import prefix
 
 # Import modules
 import db
 import commands.admin, commands.general
-import events.admin, events.snitch, events.server_management
-import voting
+from modules import blacklist, prefix, server_management, snitch, voting
+
 
 log = logging.getLogger(__name__)
 
@@ -37,13 +35,13 @@ def run_bot(bot_token):
 
     # Load modules
     bot.add_cog(commands.admin.Cog(bot))
-    bot.add_cog(commands.admin.Blacklist_cog(bot))
     bot.add_cog(commands.general.Cog(bot))
-    bot.add_cog(voting.Cog(bot))
 
-    bot.add_cog(events.admin.Cog(bot))
-    bot.add_cog(events.snitch.Cog(bot))
-    bot.add_cog(events.server_management.Cog(bot))
+    bot.add_cog(blacklist.Cog(bot))
+    bot.add_cog(prefix.Cog(bot))
+    bot.add_cog(server_management.Cog(bot))
+    bot.add_cog(snitch.Cog(bot))
+    bot.add_cog(voting.Cog(bot))
 
     # Run bot
     bot.run(bot_token)
@@ -52,8 +50,10 @@ def run_bot(bot_token):
     db.close()
 
 
+
 async def guild_prefix(bot, message):
-    prefix_return = await prefix.get(message.guild.id)
+    bot
+    prefix_return = await bot.get_cog('Prefix').get(message.guild.id)
     return dcommands.when_mentioned_or(prefix_return)(bot, message)
 
 
