@@ -27,7 +27,7 @@ def init(debug, quiet):
     handlers.append(std_out)
 
     if not quiet:
-        log_file = logging.FileHandler('bot.log', mode='w', encoding="UTF-8")
+        log_file = logging.FileHandler('logs/bot.log', mode='w', encoding="UTF-8")
         log_file.setLevel(logging.INFO)
         log_file.setFormatter(format)
         handlers.append(log_file)
@@ -35,7 +35,7 @@ def init(debug, quiet):
     if debug and not quiet:
         # rotate old debug log file here
         # mv debug.log debug.old.log
-        debug_log = logging.FileHandler('debug.log', mode='w', encoding="UTF-8")
+        debug_log = logging.FileHandler('logs/debug.log', mode='w', encoding="UTF-8")
         debug_log.setLevel(logging.DEBUG)
         debug_log.setFormatter(debugformat)
         handlers.append(debug_log)

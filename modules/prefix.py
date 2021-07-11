@@ -1,5 +1,5 @@
-import db_cache
 from discord.ext import commands
+from database.cache import Cache
 import utils.admin
 import logging
 log = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 class Cog(commands.Cog, name='Prefix'):
     def __init__(self, bot):
         self.bot = bot
-        self.prefixes = db_cache.DBCache("cmd_prefix", "guild_id", "prefix")
+        self.prefixes = Cache("cmd_prefix", "guild_id", "prefix")
         self.default_prefix = "./"
         log.info(f"Registered Cog: {self.qualified_name}")
 

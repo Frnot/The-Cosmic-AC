@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 
-db_filename = 'data.db'
+db_file = 'database/data.db'
 init_tables = {
     "cmd_prefix":"CREATE TABLE IF NOT EXISTS 'cmd_prefix' (guild_id INT PRIMARY KEY, prefix TEXT);",
     "snitch":"CREATE TABLE IF NOT EXISTS 'snitch' (guild_id INT PRIMARY KEY, hook_channel_id INT);",
@@ -26,7 +26,7 @@ async def loadasync():
     global conn
 
     log.info("Initializing database")
-    if os.path.exists(db_filename):
+    if os.path.exists(db_file):
         conn = await connect()
         await reload_tables(conn)
     else:
@@ -57,7 +57,7 @@ async def new_db():
 
 async def connect():
     try:
-        conn = await aiosqlite.connect(db_filename)
+        conn = await aiosqlite.connect(db_file)
     except Exception as e:
         print(e)
         sys.exit("Database connect error")

@@ -9,7 +9,7 @@ else:
     import importlib_metadata as metadata
 
 # Import modules
-import db
+from database import db
 import commands.admin, commands.general
 from modules import blacklist, prefix, server_management, snitch, voting
 
