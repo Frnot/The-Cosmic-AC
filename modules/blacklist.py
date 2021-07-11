@@ -100,7 +100,7 @@ class Cog(commands.Cog, name='Blacklist'):
             # perform a shallow copy on word_set to avoid race condition
             word_set = set(await self.get(message.guild.id))
 
-            test_message = message.content.replace(" ", "").lower()
+            test_message = message.content.lower()
 
             for word in word_set:
                 l_dist = 1
