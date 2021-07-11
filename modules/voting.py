@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
-import db
+from database import db
 import math
 import utils.admin
 import utils.rng

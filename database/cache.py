@@ -3,12 +3,12 @@
 # Use this class instead of accessing database manually
 
 from sqlite3.dbapi2 import Error
-import db
+from database import db
 import logging
 import pickle
 log = logging.getLogger(__name__)
 
-class DBCache:
+class Cache:
     def __init__(self, table_name, key_name, value_name, serialize=False):
         self.cache_dict = {}
         self.table_name = table_name

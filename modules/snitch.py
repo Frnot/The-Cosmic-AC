@@ -1,5 +1,5 @@
 from discord.ext import commands
-import db_cache
+from database.cache import Cache
 import time
 import utils.admin
 import logging
@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class Cog(commands.Cog, name='Snitch'):
     def __init__(self, bot):
         self.bot = bot
-        self.hooked_channels = db_cache.DBCache("snitch", "guild_id", "hook_channel_id")
+        self.hooked_channels = Cache("snitch", "guild_id", "hook_channel_id")
         self.guild_invite_maps = {} # guild_id -> Invites[]
         log.info(f"Registered Cog: {self.qualified_name}")
 

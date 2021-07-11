@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import db_cache
+from database.cache import Cache
 import utils
 import logging
 log = logging.getLogger(__name__)
@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class Cog(commands.Cog, name='Server Management'):
     def __init__(self, bot):
         self.bot = bot
-        self.auto_roles = db_cache.DBCache("autoassign", "guild_id", "role_id")
+        self.auto_roles = Cache("autoassign", "guild_id", "role_id")
         log.info(f"Registered Cog: {self.qualified_name}")
 
 

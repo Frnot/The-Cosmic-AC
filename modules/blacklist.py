@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import db_cache
+from database.cache import Cache
 from fuzzysearch import find_near_matches
 import time
 import utils
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class Cog(commands.Cog, name='Blacklist'):
     def __init__(self, bot):
         self.bot = bot
-        self.blacklists = db_cache.DBCache("blacklist", "guild_id", "blacklist_set", True)
+        self.blacklists = Cache("blacklist", "guild_id", "blacklist_set", True)
         log.info(f"Registered Cog: {self.qualified_name}")
 
 
